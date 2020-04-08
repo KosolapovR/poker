@@ -1,0 +1,37 @@
+.root {
+    width: 200px;
+    height: 100px;
+    border-radius: 10px;
+    background: rgba(200, 200, 77, 0.1);
+    position: absolute;
+}
+
+.first {
+    bottom: -10px;
+    right: 0;
+}
+
+.second {
+    bottom: -10px;
+    left: 0;
+}
+
+.third {
+    bottom: 100px;
+    left: -50px;
+}
+
+.fourth {
+    top: -10px;
+    left: 0;
+}
+
+.fifth {
+    bottom: -10px;
+    right: 0;
+}
+
+.sixth {
+    bottom: 100px;
+    right: -50px;
+}
