@@ -18,6 +18,10 @@ function Players({players}) {
                 me={true}
                 bet={p.bet}
                 showCards={p.showCards}
+                fold={p.fold}
+                dealer={p.dealer}
+                bigBlind={p.bigBlind}
+                smallBlind={p.smallBlind}
             /> :
             <Player
                 key={i}
@@ -31,6 +35,10 @@ function Players({players}) {
                 cash={p.cash}
                 bet={p.bet}
                 showCards={p.showCards}
+                fold={p.fold}
+                dealer={p.dealer}
+                bigBlind={p.bigBlind}
+                smallBlind={p.smallBlind}
             />);
 
     return (

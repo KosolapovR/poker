@@ -1,12 +1,15 @@
 import React from 'react';
-import SpriteMap from "../../../Sprite";
+import s from "./turn.module.css";
+import Card from "../card";
 
 function Turn({card}) {
-    return (
-        <>
-            <SpriteMap sprite={{type: 'card', suit: card.suit, value: card.value}}/>
-        </>
-    );
+    if(card){
+        return <div className={s.root}>
+            <Card value={card.value}/>
+        </div>
+    }else{
+        return <></>;
+    }
 }
 
 export default Turn;

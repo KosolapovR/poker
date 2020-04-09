@@ -7,7 +7,7 @@ export default function getChipsStack(value) {
             for (let j = 0; j < count; j++) {
                 arr.push(chips[i]);
             }
-            debugger;
+
             value -= Math.floor(value / chips[i]) * chips[i];
         }
     }

@@ -5,6 +5,10 @@ import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
 import SpriteMap from "../../../../Sprite";
 import Bet from "../../bet";
+import Card from "../../card";
+import CardBackground from "../../cardBackground";
+import FoldedCards from "../../foldedCards";
+import Button from "../../button";
 
 const useStyles = makeStyles({
     root: {
@@ -22,11 +26,18 @@ const useStyles = makeStyles({
         position: 'absolute',
         zIndex: 50
     },
+    leftCard: {
+        position: 'absolute',
+        left: '-40px',
+        top: '-10px'
+    },
     pocketPair: {
         position: 'absolute',
-        left: '-55px',
+        left: '0px',
         zIndex: 100,
-        display: 'flex'
+        top: '35px',
+        display: 'flex',
+        width: '60px'
     },
     pocketPairHidden: {
         position: 'absolute',
@@ -36,19 +47,26 @@ const useStyles = makeStyles({
     }
 });
 
-function Player({name, cards, position, img, cash, bet, me, showCards}) {
+function Player({name, dealer, bigBlind, smallBlind, fold, cards, position, img, cash, bet, me, showCards}) {
 
-    if (me) console.log(position);
-    const classes = useStyles(position, bet);
+
+    const classes = useStyles(position);
 
     if (me) {
         return (
             <Grid container direction='column-reverse' className={classes.root}>
                 {bet && <Bet position={position} value={bet}/>}
-                {cards &&
+                {fold && <FoldedCards position={position.fold}/>}
+                {dealer && <Button position={position.button} type='dealer'/>}
+                {bigBlind && <Button position={position.button} type='bigBlind'/>}
+                {smallBlind && <Button position={position.button} type='smallBlind'/>}
+                {cards.length > 0 &&
                 <div className={classes.pocketPair}>
-                    <SpriteMap sprite={{type: 'card', suit: cards[0].suit, value: cards[0].value}}/>
-                    <SpriteMap sprite={{type: 'card', suit: cards[1].suit, value: cards[1].value}}/>
+                    <div className={classes.leftCard}>
+                        <Card value={cards[0].value}/>
+                    </div>
+
+                    <Card value={cards[1].value}/>
                 </div>
                 }
                 <Grid className={classes.card} container item>
@@ -66,13 +84,20 @@ function Player({name, cards, position, img, cash, bet, me, showCards}) {
         return (
             <Grid container direction='column-reverse' className={classes.root}>
                 {bet && <Bet value={bet} position={position}/>}
-                {cards.length > 0 && !showCards && <div className={classes.pocketPairHidden}>
-                    <SpriteMap sprite={{type: 'card shirt'}}/>
-                    <SpriteMap sprite={{type: 'card shirt'}}/>
+                {fold && <FoldedCards position={position.fold}/>}
+                {dealer && <Button position={position.button} type='dealer'/>}
+                {bigBlind && <Button position={position.button} type='bigBlind'/>}
+                {smallBlind && <Button position={position.button} type='smallBlind'/>}
+                {cards && !fold && cards.length > 0 && !showCards && <div className={classes.pocketPairHidden}>
+                    <CardBackground/>
+                    <CardBackground/>
                 </div>}
                 {showCards && <div className={classes.pocketPair}>
-                    <SpriteMap sprite={{type: 'card', suit: cards[0].suit, value: cards[0].value}}/>
-                    <SpriteMap sprite={{type: 'card', suit: cards[1].suit, value: cards[1].value}}/>
+                    <div className={classes.leftCard}>
+                        <Card value={cards[0].value}/>
+                    </div>
+
+                    <Card value={cards[1].value}/>
                 </div>}
                 <Grid className={classes.card} container item>
                     <Grid xs={4} item>

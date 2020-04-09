@@ -1,12 +1,15 @@
 import React from 'react';
-import SpriteMap from "../../../Sprite";
+import s from "./river.module.css";
+import Card from "../card";
 
 function River({card}) {
-    return (
-        <>
-            <SpriteMap sprite={{type: 'card', suit: card.suit, value: card.value}}/>
-        </>
-    );
+    if (card) {
+        return <div className={s.root}>
+            <Card value={card.value}/>
+        </div>
+    } else {
+        return <></>;
+    }
 }
 
 export default River;

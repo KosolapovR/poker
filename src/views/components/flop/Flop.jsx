@@ -1,14 +1,16 @@
 import React from 'react';
-import SpriteMap from "../../../Sprite";
+import s from './flop.module.css';
+import Card from "../card";
+
 
 function Flop({cards}) {
-    return (
-        <>
-            <SpriteMap sprite={{type: 'card', suit: cards[0].suit, value: cards[0].value}}/>
-            <SpriteMap sprite={{type: 'card', suit: cards[1].suit, value: cards[1].value}}/>
-            <SpriteMap sprite={{type: 'card', suit: cards[2].suit, value: cards[2].value}}/>
-        </>
-    );
+    if(cards){
+        return <div className={s.root}>
+            {cards.map(c => <Card value={c.value}/>)}
+        </div>
+    }else{
+        return <></>;
+    }
 }
 
 export default Flop;

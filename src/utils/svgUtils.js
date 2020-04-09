@@ -60,7 +60,6 @@ export default function generateViewBox(data) {
         height = 165;
         return `${start_x} ${start_y} ${width} ${height}`;
     }else if(data.type === 'chips'){
-        console.log('chips');
         return getChipsViewBox(data.value);
     }
 }

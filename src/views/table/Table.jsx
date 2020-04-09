@@ -7,21 +7,35 @@ import River from "../components/river";
 import Players from "../components/players";
 import Bank from "../components/bank";
 
+
 function Table(props) {
     const [suit, setSuit] = useState('hearts');
     const [value, setValue] = useState('A');
-    const [flop, setFlop] = useState([
-        {suit: 'spades', value: 2},
-        {suit: 'spades', value: 5},
-        {suit: 'clubs', value: 'Q'}
+    const [flop, setFlop] = useState(null);
+    const [fold, setFold] = useState(false);
+    const [Zhanna, setZhanna] = useState([
+        {
+            value: 'Ah'
+        },
+        {
+            value: '2h'
+        }
     ]);
+    const [turn, setTurn] = useState(null);
 
-    const [turn, setTurn] = useState({suit: 'diamonds', value: 'A'}
-    );
+    const [river, setRiver] = useState(null);
 
-    const [river, setRiver] = useState(
-        {suit: 'hearts', value: 'T'}
-    );
+    useEffect(() => {
+        setTimeout(() => {
+            setFlop([
+                {value: 'Ac'},
+                {value: 'Ad'},
+                {value: '4s'}
+            ]);
+        }, 2000);
+    }, []);
+
+    const [showCards, setShowCards] = useState(false);
 
     const suits = ['hearts', 'diamonds', 'spades', 'clubs'];
     const values = ['A', 'K', 'Q', 'J', 'T', 9, 8, 7, 6, 5, 4, 3, 2];
@@ -32,18 +46,17 @@ function Table(props) {
             cash: 200,
             img: {Avatar},
             status: 'inGame',
-            position: {top: 300, left: 500, chips: {top: -40, left: 25}},
+            position: {top: 300, left: 500, chips: {top: -40, left: 25}, fold: {top: -20, left: 95}, button: {top: -10, left: 5}},
             order: 1,
-            me: true,
-            bet: 45,
+            bet: 2,
+            fold: true,
+            dealer: true,
             cards: [
                 {
-                    suit: 'hearts',
-                    value: 'A'
+                    value: 'Ah'
                 },
                 {
-                    suit: 'spades',
-                    value: 9
+                    value: '2h',
                 }
             ]
         },
@@ -52,62 +65,59 @@ function Table(props) {
             cash: 200,
             img: {Avatar},
             status: 'inGame',
-            position: {top: 300, left: 100, chips: {top: -40, left: 155}},
-            bet: 45,
+            position: {top: 300, left: 100, chips: {top: -40, left: 155}, fold: {top: -20, left: 125}, button: {top: -10, left: 45}},
+            bet: 43,
             order: 2,
-            cards: [{
-                suit: 'hearts',
-                value: 'A'
-            },
-                {
-                    suit: 'spades',
-                    value: 9
-                }]
+            fold: fold,
+            dealer: true,
+            me: true,
+            smallBlind: true,
+            cards: Zhanna
         },
         {
             name: 'Никита',
             cash: 200,
             img: {Avatar},
             status: 'inGame',
-            hasCards: true,
-            position: {top: 120, left: -150, chips: {top: 50, left: 255}},
+            position: {top: 120, left: -150, chips: {top: 50, left: 255}, fold: {top: 10, left: 195}, button: {top: 60, left: 210}},
             order: 3,
-            bet: 49,
-            showCards: true,
-            cards: [
-                {
-                    suit: 'hearts',
-                    value: 'A'
-                },
-                {
-                    suit: 'spades',
-                    value: 9
-                }
-            ]
-        },
-        {
-            name: 'Даша', cash: 200, img: {Avatar}, status: 'sitOut', position: {top: -80, left: 100, chips: {top: 130, left: 95}}, bet: 45, order: 4,
+            bet: 3,
+            showCards: showCards,
+            dealer: true,
+            fold: true,
+            bigBlind: true,
             cards: []
         },
         {
-            name: 'Петя', cash: 200, img: {Avatar}, status: 'wait', position: {top: -80, left: 500, chips: {top: 130, left: 55}}, bet: 145, order: 5,
+            name: 'Даша',
+            cash: 200, img: {Avatar},
+            status: 'sitOut',
+            position: {top: -80, left: 100, chips: {top: 130, left: 95}, fold: {top: 110, left: 55}, button: {top: 110, left: 150}},
+            bet: 45, order: 4,
+            bigBlind: true,
+            fold: true,
+            cards: []
+        },
+        {
+            name: 'Петя',
+            cash: 200,
+            img: {Avatar},
+            status: 'wait',
+            position: {top: -80, left: 500, chips: {top: 130, left: 55}, fold: {top: 110, left: 25}, button: {top: 110, left: -10}},
+            bet: 145,
+            order: 5,
+            bigBlind: true,
+            fold: true,
             cards: []
         },
         {
             name: 'Вася', cash: 200, img: {Avatar}, status: 'inGame',
-            position: {top: 120, left: 700, chips: {top: 50, left: -75}},
+            position: {top: 120, left: 700, chips: {top: 50, left: -125}, fold: {top: 20, left: -45}, button: {top: 70, left: -40}},
             bet: 200,
             order: 6,
-            cards: [
-                {
-                    suit: 'hearts',
-                    value: 'A'
-                },
-                {
-                    suit: 'spades',
-                    value: 9
-                }
-            ]
+            fold: true,
+            bigBlind: true,
+            cards: []
         },
     ];
 
@@ -119,6 +129,19 @@ function Table(props) {
                 <River card={river}/>
                 <Players players={players}/>
                 <Bank amount={321}/>
+                <button style={{marginTop: '-30px'}} onClick={() => {
+                    setFold(true);
+                    setZhanna([]);
+                }}>Fold
+                </button>
+                <button style={{marginTop: '-30px'}} onClick={() => {
+                    setTurn({value: 'Jc'})
+                }}>Turn
+                </button>
+                <button style={{marginTop: '-30px'}} onClick={() => {
+                    setRiver({value: 'Jd'})
+                }}>River
+                </button>
             </div>
         </div>
     );

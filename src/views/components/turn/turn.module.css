@@ -1,0 +1,21 @@
+.root {
+    position: absolute;
+    opacity: 0;
+    top: -50px;
+    animation: cardPush .5s ease-in-out;
+    animation-fill-mode: forwards;
+}
+
+@keyframes cardPush {
+    from {
+        transform: scale(0.3);
+        top: -50px;
+        left: 300px;
+    }
+    to {
+        top: 80px;
+        left: 388px;
+        transform: scale(1);
+        opacity: 1;
+    }
+}
