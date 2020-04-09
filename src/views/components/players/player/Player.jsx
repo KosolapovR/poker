@@ -4,6 +4,7 @@ import Avatar from "@material-ui/core/Avatar";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
 import SpriteMap from "../../../../Sprite";
+import Bet from "../../bet";
 
 const useStyles = makeStyles({
     root: {
@@ -32,28 +33,18 @@ const useStyles = makeStyles({
         left: '55px',
         zIndex: 10,
         display: 'flex'
-    },
-    chips: {
-        position: 'absolute',
-        top: position => `${position.chips.top}px`,
-        left: position => `${position.chips.left}px`,
-        zIndex: 100,
-        display: 'flex'
     }
 });
 
-function Player({name, cards, position, img, cash, bet, me}) {
+function Player({name, cards, position, img, cash, bet, me, showCards}) {
 
-    if(me) console.log(position);
-    const classes = useStyles(position);
+    if (me) console.log(position);
+    const classes = useStyles(position, bet);
 
     if (me) {
         return (
             <Grid container direction='column-reverse' className={classes.root}>
-                {bet &&
-                <div className={classes.chips}>
-                    <SpriteMap sprite={{type: 'chips', value: bet}}/>
-                </div>}
+                {bet && <Bet position={position} value={bet}/>}
                 {cards &&
                 <div className={classes.pocketPair}>
                     <SpriteMap sprite={{type: 'card', suit: cards[0].suit, value: cards[0].value}}/>
@@ -74,9 +65,14 @@ function Player({name, cards, position, img, cash, bet, me}) {
     } else {
         return (
             <Grid container direction='column-reverse' className={classes.root}>
-                {cards.length > 0 && <div className={classes.pocketPairHidden}>
+                {bet && <Bet value={bet} position={position}/>}
+                {cards.length > 0 && !showCards && <div className={classes.pocketPairHidden}>
                     <SpriteMap sprite={{type: 'card shirt'}}/>
                     <SpriteMap sprite={{type: 'card shirt'}}/>
+                </div>}
+                {showCards && <div className={classes.pocketPair}>
+                    <SpriteMap sprite={{type: 'card', suit: cards[0].suit, value: cards[0].value}}/>
+                    <SpriteMap sprite={{type: 'card', suit: cards[1].suit, value: cards[1].value}}/>
                 </div>}
                 <Grid className={classes.card} container item>
                     <Grid xs={4} item>

@@ -66,10 +66,33 @@ export default function generateViewBox(data) {
 }
 
 function  getChipsViewBox(value) {
-    console.log(value);
-    const start_x = 423;
-    const start_y = 340;
     const width = 90;
     const height = 80;
-    return `${start_x} ${start_y} ${width} ${height}`;
+    switch (value) {
+        case 1:{
+            return `423 340 ${width} ${height}`;
+        }
+        case 2:{
+            return `295 340 ${width} ${height}`;
+        }
+        case 5:{
+            return `163 340 ${width} ${height}`;
+        }
+        case 10:{
+            return `33 340 ${width} ${height}`;
+        }
+        case 25:{
+            return `33 414 ${width} ${height}`;
+        }
+        case 50:{
+            return `163 414 ${width} ${height}`;
+        }
+        case 100:{
+            return `295 414 ${width} ${height}`;
+        }
+        default: return false;
+    }
+
+
+
 }

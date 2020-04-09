@@ -5,6 +5,7 @@ import Flop from "../components/flop";
 import Turn from "../components/turn";
 import River from "../components/river";
 import Players from "../components/players";
+import Bank from "../components/bank";
 
 function Table(props) {
     const [suit, setSuit] = useState('hearts');
@@ -47,8 +48,21 @@ function Table(props) {
             ]
         },
         {
-            name: 'Жанна', cash: 200, img: {Avatar}, status: 'inGame', position: {top: 300, left: 100, chips: {top: -40, left: 45}}, order: 2,
-            cards: []
+            name: 'Жанна',
+            cash: 200,
+            img: {Avatar},
+            status: 'inGame',
+            position: {top: 300, left: 100, chips: {top: -40, left: 155}},
+            bet: 45,
+            order: 2,
+            cards: [{
+                suit: 'hearts',
+                value: 'A'
+            },
+                {
+                    suit: 'spades',
+                    value: 9
+                }]
         },
         {
             name: 'Никита',
@@ -56,9 +70,10 @@ function Table(props) {
             img: {Avatar},
             status: 'inGame',
             hasCards: true,
-            position: {top: 120, left: -150, chips: {top: -40, left: 55}},
+            position: {top: 120, left: -150, chips: {top: 50, left: 255}},
             order: 3,
-            bet: 45,
+            bet: 49,
+            showCards: true,
             cards: [
                 {
                     suit: 'hearts',
@@ -71,15 +86,18 @@ function Table(props) {
             ]
         },
         {
-            name: 'Даша', cash: 200, img: {Avatar}, status: 'sitOut', position: {top: -80, left: 100, chips: {top: -40, left: 55}}, order: 4,
+            name: 'Даша', cash: 200, img: {Avatar}, status: 'sitOut', position: {top: -80, left: 100, chips: {top: 130, left: 95}}, bet: 45, order: 4,
             cards: []
         },
         {
-            name: 'Петя', cash: 200, img: {Avatar}, status: 'wait', position: {top: -80, left: 500, chips: {top: -40, left: 55}}, order: 5,
+            name: 'Петя', cash: 200, img: {Avatar}, status: 'wait', position: {top: -80, left: 500, chips: {top: 130, left: 55}}, bet: 145, order: 5,
             cards: []
         },
         {
-            name: 'Вася', cash: 200, img: {Avatar}, status: 'inGame', position: {top: 120, left: 700, chips: {top: -40, left: 55}}, order: 6,
+            name: 'Вася', cash: 200, img: {Avatar}, status: 'inGame',
+            position: {top: 120, left: 700, chips: {top: 50, left: -75}},
+            bet: 200,
+            order: 6,
             cards: [
                 {
                     suit: 'hearts',
@@ -100,6 +118,7 @@ function Table(props) {
                 <Turn card={turn}/>
                 <River card={river}/>
                 <Players players={players}/>
+                <Bank amount={321}/>
             </div>
         </div>
     );

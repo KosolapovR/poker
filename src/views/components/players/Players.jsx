@@ -17,6 +17,7 @@ function Players({players}) {
                 cash={p.cash}
                 me={true}
                 bet={p.bet}
+                showCards={p.showCards}
             /> :
             <Player
                 key={i}
@@ -29,6 +30,7 @@ function Players({players}) {
                 img={p.img}
                 cash={p.cash}
                 bet={p.bet}
+                showCards={p.showCards}
             />);
 
     return (
