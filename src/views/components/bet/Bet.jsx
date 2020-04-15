@@ -56,7 +56,7 @@ function Bet({value, position}) {
     const chipsStack = getChipsStack(value);
     return (
         <div className={classes.chips}>
-            {chipsStack.map(c => <div className={`${classes.chip}`}>
+            {chipsStack.map((c, i) => <div key={i} className={`${classes.chip}`}>
                 <SpriteMap sprite={{type: 'chips', value: c}}/>
             </div>)}
             <span className={classes.betValue}>{value}</span>

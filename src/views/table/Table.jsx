@@ -6,9 +6,28 @@ import Turn from "../components/turn";
 import River from "../components/river";
 import Players from "../components/players";
 import Bank from "../components/bank";
+import ActionBar from "../components/actionBar";
+import {makeStyles} from "@material-ui/core/styles";
+import {connect} from "react-redux";
+import {wsConnectAC} from "../../state/ws";
+
+const useStyles = makeStyles({
+    actionBar: {
+        position: 'fixed',
+        bottom: 0,
+        right: 0
+    }
+});
 
 
-function Table(props) {
+function Table({connected, connect}) {
+
+    useEffect(() => {
+        connect()
+    }, []);
+
+    console.log(connected);
+    const classes = useStyles();
     const [suit, setSuit] = useState('hearts');
     const [value, setValue] = useState('A');
     const [flop, setFlop] = useState(null);
@@ -46,7 +65,13 @@ function Table(props) {
             cash: 200,
             img: {Avatar},
             status: 'inGame',
-            position: {top: 300, left: 500, chips: {top: -40, left: 25}, fold: {top: -20, left: 95}, button: {top: -10, left: 5}},
+            position: {
+                top: 300,
+                left: 500,
+                chips: {top: -40, left: 25},
+                fold: {top: -20, left: 95},
+                button: {top: -10, left: 5}
+            },
             order: 1,
             bet: 2,
             fold: true,
@@ -65,7 +90,13 @@ function Table(props) {
             cash: 200,
             img: {Avatar},
             status: 'inGame',
-            position: {top: 300, left: 100, chips: {top: -40, left: 155}, fold: {top: -20, left: 125}, button: {top: -10, left: 45}},
+            position: {
+                top: 300,
+                left: 100,
+                chips: {top: -40, left: 155},
+                fold: {top: -20, left: 125},
+                button: {top: -10, left: 45}
+            },
             bet: 43,
             order: 2,
             fold: fold,
@@ -79,7 +110,13 @@ function Table(props) {
             cash: 200,
             img: {Avatar},
             status: 'inGame',
-            position: {top: 120, left: -150, chips: {top: 50, left: 255}, fold: {top: 10, left: 195}, button: {top: 60, left: 210}},
+            position: {
+                top: 120,
+                left: -150,
+                chips: {top: 50, left: 255},
+                fold: {top: 10, left: 195},
+                button: {top: 60, left: 210}
+            },
             order: 3,
             bet: 3,
             showCards: showCards,
@@ -92,7 +129,13 @@ function Table(props) {
             name: 'Даша',
             cash: 200, img: {Avatar},
             status: 'sitOut',
-            position: {top: -80, left: 100, chips: {top: 130, left: 95}, fold: {top: 110, left: 55}, button: {top: 110, left: 150}},
+            position: {
+                top: -80,
+                left: 100,
+                chips: {top: 130, left: 95},
+                fold: {top: 110, left: 55},
+                button: {top: 110, left: 150}
+            },
             bet: 45, order: 4,
             bigBlind: true,
             fold: true,
@@ -103,7 +146,13 @@ function Table(props) {
             cash: 200,
             img: {Avatar},
             status: 'wait',
-            position: {top: -80, left: 500, chips: {top: 130, left: 55}, fold: {top: 110, left: 25}, button: {top: 110, left: -10}},
+            position: {
+                top: -80,
+                left: 500,
+                chips: {top: 130, left: 55},
+                fold: {top: 110, left: 25},
+                button: {top: 110, left: -10}
+            },
             bet: 145,
             order: 5,
             bigBlind: true,
@@ -112,7 +161,13 @@ function Table(props) {
         },
         {
             name: 'Вася', cash: 200, img: {Avatar}, status: 'inGame',
-            position: {top: 120, left: 700, chips: {top: 50, left: -125}, fold: {top: 20, left: -45}, button: {top: 70, left: -40}},
+            position: {
+                top: 120,
+                left: 700,
+                chips: {top: 50, left: -125},
+                fold: {top: 20, left: -45},
+                button: {top: 70, left: -40}
+            },
             bet: 200,
             order: 6,
             fold: true,
@@ -143,8 +198,20 @@ function Table(props) {
                 }}>River
                 </button>
             </div>
+            <ActionBar className={classes.actionBar}/>
         </div>
     );
 }
 
-export default Table;
+
+const mapStateToProps = state => ({
+    connected: state.ws.connected
+});
+
+const mapDispatchToProps = dispatch => ({
+    connect: () => {
+        dispatch(wsConnectAC())
+    }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Table);

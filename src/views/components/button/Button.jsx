@@ -12,7 +12,7 @@ const useStyles = makeStyles({
 
 function Button({position, type}) {
     const classes = useStyles(position);
-    console.log('type: ', type);
+
     return (
         <img
             className={classes.root}

@@ -1,0 +1,3 @@
+const WS_CONNECTED = 'ws/WS_CONNECTED';
+
+export {WS_CONNECTED}

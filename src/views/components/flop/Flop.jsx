@@ -6,7 +6,7 @@ import Card from "../card";
 function Flop({cards}) {
     if(cards){
         return <div className={s.root}>
-            {cards.map(c => <Card value={c.value}/>)}
+            {cards.map((c, i) => <Card key={i} value={c.value}/>)}
         </div>
     }else{
         return <></>;

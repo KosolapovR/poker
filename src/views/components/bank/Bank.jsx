@@ -53,7 +53,7 @@ function Bank({amount}) {
     const chipsStack = getChipsStack(amount);
     return (
         <div className={classes.root}>
-            {chipsStack.map(c => <div className={`${classes.chip}`}>
+            {chipsStack.map((c, i) => <div key={i} className={`${classes.chip}`}>
                 <SpriteMap sprite={{type: 'chips', value: c}}/>
             </div>)}
             <span className={classes.bankValue}>{amount}</span>
