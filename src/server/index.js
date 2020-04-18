@@ -5,17 +5,21 @@ var Hand = require('pokersolver').Hand;
 var isEqual = require('lodash.isequal');
 
 
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-const PORT = 8080;
+const PORT = 8080,
 
-let tablePositions = [1, 2, 3, 4, 5, 6];
+    emptyPlaces = [6, 5, 4, 3, 2, 1],
+    positions = ['sb', 'bb', 'utg', 'mp', 'cut', 'but'],
+    positionsInGame = [],
+    players = [],
+    statuses = ['inGame', 'wait', 'fold', 'show'];
 
-io.on('connection', function(socket){
+io.on('connection', function (socket) {
     console.log('a user connected!!');
-    socket.on('join', (user)=> {
+    socket.on('join', (user) => {
         /*var hand1 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', '3c', 'Kd']);
         var hand2 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', 'Ac', 'Kc']);
         var hand3 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', 'Ah', 'Qh']);
@@ -26,25 +30,69 @@ io.on('connection', function(socket){
         console.log('hand3 = ', isEqual(hand3.cards, winner[0].cards));
         console.log('Зашел   новый пользователь');*/
 
-        var clients = io.sockets.adapter.rooms['PokerRoom'];
-
-        if(clients.sockets.length <= 5){
-            socket.user = user;
+        //проверка наличия мест
+        if (players.length <= 6) {
             socket.join('PokerRoom');
 
-            for(let id in clients.sockets){
-                console.log(io.sockets.connected[id].user);
-            }
+            //резервирование места за столом
+            const place = emptyPlaces.pop();
 
-            socket.broadcast.emit('newUserJoin', user);
+            const player = {
+                id: place,
+                name: user.name,
+                cash: 200,
+                place: place,
+                position: positions[place - 1],
+                status: statuses[1],
+                timeBank: 30
+            };
+
+            players.push(player);
+
+            positionsInGame[positionsInGame.length] = positions[positionsInGame.length];
+
+            socket.user = player;
+
+            emitAllUsersInRoom('PokerRoom');
         }
+
     });
 
-    socket.on('disconnect', ()=> {
-        console.log('user disconnected')
+    socket.on('nextHand', () => {
+        changePositions(positionsInGame);
+    });
+
+    socket.on('disconnect', () => {
+        if (socket.user && socket.user.place)
+            tablePositions.push(socket.user.place);
+        console.log('tablePositions', tablePositions);
+        if (io.sockets.adapter.rooms['PokerRoom'])
+            emitAllUsersInRoom('PokerRoom');
     })
 });
 
-http.listen(PORT, function(){
+function emitAllUsersInRoom(roomId) {
+    let clients = io.sockets.adapter.rooms[roomId];
+
+    const users = [];
+
+    for (let id in clients.sockets) {
+        users.push(io.sockets.connected[id].user);
+    }
+
+    io.sockets.emit('usersInRoom', users);
+}
+
+function changePositions(positions) {
+
+    const newPositions = [];
+
+    for (let i = 0; i < positions.length; i++) {
+        newPositions[i] = i === positions.length - 1 ? positions[0] : positions[i + 1];
+    }
+
+}
+
+http.listen(PORT, function () {
     console.log(`listening on :${PORT}`);
 });

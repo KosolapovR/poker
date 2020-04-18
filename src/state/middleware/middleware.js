@@ -7,8 +7,8 @@ const socketMiddleware = () => {
     let socket = openSocket('http://localhost:8080');
     socket.emit('join', {name: 'Рома'});
 
-    socket.on('newUserJoin', user => {
-        console.log('middleware', user);
+    socket.on('usersInRoom', users => {
+        console.log('all users = ', users);
     });
 
     // the middleware part of this function
