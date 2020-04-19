@@ -3,7 +3,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var Hand = require('pokersolver').Hand;
 var isEqual = require('lodash.isequal');
-
+var Game = require('./game/game');
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
@@ -17,8 +17,10 @@ const PORT = 8080,
     players = [],
     statuses = ['inGame', 'wait', 'fold', 'show'];
 
+const game = new Game();
+
 io.on('connection', function (socket) {
-    console.log('a user connected!!');
+
     socket.on('join', (user) => {
         /*var hand1 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', '3c', 'Kd']);
         var hand2 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', 'Ac', 'Kc']);
@@ -34,24 +36,8 @@ io.on('connection', function (socket) {
         if (players.length <= 6) {
             socket.join('PokerRoom');
 
-            //резервирование места за столом
-            const place = emptyPlaces.pop();
-
-            const player = {
-                id: place,
-                name: user.name,
-                cash: 200,
-                place: place,
-                position: positions[place - 1],
-                status: statuses[1],
-                timeBank: 30
-            };
-
-            players.push(player);
-
-            positionsInGame[positionsInGame.length] = positions[positionsInGame.length];
-
-            socket.user = player;
+            socket.player = game.addPlayer(user);
+            console.log(game.getPositionsInGame());
 
             emitAllUsersInRoom('PokerRoom');
         }
@@ -63,9 +49,9 @@ io.on('connection', function (socket) {
     });
 
     socket.on('disconnect', () => {
-        if (socket.user && socket.user.place)
-            tablePositions.push(socket.user.place);
-        console.log('tablePositions', tablePositions);
+        if (socket.player)
+            game.removePlayer(socket.player);
+        console.log('tablePositions', game.getPositionsInGame());
         if (io.sockets.adapter.rooms['PokerRoom'])
             emitAllUsersInRoom('PokerRoom');
     })
@@ -74,13 +60,13 @@ io.on('connection', function (socket) {
 function emitAllUsersInRoom(roomId) {
     let clients = io.sockets.adapter.rooms[roomId];
 
-    const users = [];
+    const players = [];
 
     for (let id in clients.sockets) {
-        users.push(io.sockets.connected[id].user);
+        players.push(io.sockets.connected[id].player);
     }
 
-    io.sockets.emit('usersInRoom', users);
+    io.sockets.emit('usersInRoom', players);
 }
 
 function changePositions(positions) {
