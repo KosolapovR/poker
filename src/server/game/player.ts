@@ -1,19 +1,20 @@
 export class Player {
 
-    private id: Number;
-    private name: String;
-    private cash: Number;
-    private place: Number;
-    private position: String;
-    private status: String;
-    private timeBank: Number;
-    private cards: Array<String>;
+    private readonly id: number;
+    private readonly name: string;
+    private cash: number;
+    private place: number;
+    private position: string;
+    private status: string;
+    private timeBank: number;
+    private cards: Array<string>;
+    private countDownId: any;
 
-    constructor(name: String,
-                cash: Number,
-                place: Number,
-                position: String,
-                status: String) {
+    constructor(name: string,
+                cash: number,
+                place: number,
+                position: string,
+                status: string) {
 
         this.id = place;
         this.name = name;
@@ -25,59 +26,65 @@ export class Player {
         this.cards = [];
     }
 
-    getId = function () {
+    getId = () => {
         return this.id;
-    }
+    };
 
-    getName = function () {
+    getName = () => {
         return this.name;
-    }
+    };
 
-    setCash = function (newCash) {
+    setCash = (newCash) => {
         this.cash = newCash;
-    }
+    };
 
-    getCash = function () {
+    getCash = () => {
         return this.cash;
     };
 
-    setPlace = function (newPlace) {
+    setPlace = (newPlace) => {
         this.place = newPlace;
     };
 
-    getPlace = function () {
+    getPlace = () => {
         return this.place;
     };
 
-    setPosition = function (newPosition) {
+    setPosition = (newPosition) => {
         this.position = newPosition;
     };
 
-    getPosition = function () {
+    getPosition = () => {
         return this.position;
     };
 
-    setStatus = function (newStatus) {
+    setStatus = (newStatus) => {
         this.status = newStatus;
     };
 
-    getStatus = function () {
+    getStatus = () => {
         return this.status;
     };
 
-    getCards = function (cards: Array<String>) {
+    getCards = (cards: Array<string>) => {
         this.cards = cards;
     };
 
-    setCards = function (strings: string[]) {
+    setCards = (strings: string[]) => {
         return this.cards;
     };
 
-    getTimeBank = function (timeBank) {
+    setTimeBank = (timeBank: number) => {
         this.timeBank = timeBank;
     };
 
-    setTimeBank = function () {
+    getTimeBank = () => {
         return this.timeBank;
+    };
+
+    countdownStart = () => {
+        this.countDownId = setTimeout(function () {
+            this.setTimebank(0);
+        }, this.getTimeBank());
     };
 };

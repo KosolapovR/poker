@@ -4,6 +4,7 @@ import {Hand} from "./Hand";
 export class Game {
     private players: Array<Player>;
     private handHistory: Array<Hand>;
+    private currentHand: Hand;
     private emptyPlaces: Array<Number>;
     private availablePositions: Array<String>;
     private positionsInGame: Array<Number>;
@@ -41,9 +42,11 @@ export class Game {
 
     getPositionsInGame = function () {
         return this.positionsInGame
-    }
+    };
 
     dealCards = function () {
+        this.currentHand = new Hand(this.players)
+    };
 
-    }
+
 };
