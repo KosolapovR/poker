@@ -3,7 +3,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var Hand = require('pokersolver').Hand;
 var isEqual = require('lodash.isequal');
-var Game = require('./game/game');
+import {Game} from "./game/game";
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
