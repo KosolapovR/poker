@@ -1,3 +1,4 @@
 const WS_CONNECTED = 'ws/WS_CONNECTED';
+const WS_NEXT_HAND = 'ws/WS_NEXT_HAND';
 
-export {WS_CONNECTED}
+export {WS_CONNECTED, WS_NEXT_HAND}

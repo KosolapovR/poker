@@ -1,31 +1,35 @@
 import {Player} from "./player";
-import {Hand} from "./Hand";
+import {Hand} from "./hand";
 
-export class Game {
+class Game {
     private players: Array<Player>;
-    private handHistory: Array<Hand>;
-    private currentHand: Hand;
-    private emptyPlaces: Array<Number>;
-    private availablePositions: Array<String>;
-    private positionsInGame: Array<Number>;
-    private statuses: Array<String>;
+    private currentHand: Hand | undefined;
+    private emptyPlaces: Array<number>;
+    private availablePositions: Array<string>;
+    private positionsInGame: Array<string>;
+    private statuses: Array<string>;
 
     constructor() {
         this.players = [];
         this.emptyPlaces = [6, 5, 4, 3, 2, 1];
-        this.availablePositions = ['sb', 'bb', 'utg', 'mp', 'cut', 'but'];
+        this.availablePositions = ['bb', 'sb', 'but', 'cut', 'mp', 'utg'];
         this.positionsInGame = [];
         this.statuses = ['inGame', 'wait', 'fold', 'show'];
+
     }
 
-    getPlayers = function () {
+    getPlayers = () => {
         return this.players
     };
 
-    addPlayer = function (user) {
+    hasEmptyPlaces = () => {
+      return Boolean(this.emptyPlaces.length);
+    };
+
+    addPlayer = ({user}: { user: any }) => {
         const place = this.emptyPlaces.pop();
 
-        const player = new Player(user.name, 200, place, this.availablePositions[place - 1], this.statuses[1]);
+        const player = new Player(user.name, 200, place, this.availablePositions[<number>place - 1], this.statuses[1]);
 
         this.players.push(player);
 
@@ -34,19 +38,28 @@ export class Game {
         return player;
     };
 
-    removePlayer = function (player: Player) {
+    removePlayer = (player: Player) => {
         this.positionsInGame.pop();
-        this.emptyPlaces.push(player.getPosition());
+        this.emptyPlaces.push(<number>player.getPlace());
         this.players = this.players.filter(p => p.getId() !== player.getId());
     };
 
-    getPositionsInGame = function () {
+    getPositionsInGame = () => {
         return this.positionsInGame
     };
 
-    dealCards = function () {
-        this.currentHand = new Hand(this.players)
+    dealCards = () => {
+        this.setCurrentHand(new Hand(this.players));
     };
 
 
+    getCurrentHand(): Hand {
+        return <Hand>this.currentHand;
+    }
+
+    setCurrentHand(value: Hand) {
+        this.currentHand = value;
+    }
 };
+
+module.exports = Game;

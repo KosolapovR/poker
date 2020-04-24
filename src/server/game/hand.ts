@@ -1,8 +1,8 @@
 import {Player} from "./player";
 
 export class Hand {
-    private readonly deck: Array<String>;
-    private currentDeck: Array<String>;
+    private readonly deck: Array<string>;
+    private currentDeck: Array<string>;
 
     constructor(players: Array<Player>) {
         this.deck = [
@@ -17,11 +17,12 @@ export class Hand {
         this.dealCards(players);
     }
 
-    private dealCards = function (players: Array<Player>) {
-        players.forEach(function (p) {
-            p.setCards(
-                [this.currentDeck.slice(Math.floor(Math.random() * this.currentDeck.length), 1)]
-            )
-        }.bind(this));
+    private dealCards = (players: Array<Player>) => {
+        players.forEach((p: Player) => {
+            const card1 = this.currentDeck.splice(Math.floor(Math.random() * this.currentDeck.length), 1);
+            const card2 = this.currentDeck.splice(Math.floor(Math.random() * this.currentDeck.length), 1);
+
+            p.setCards([card1, card2]);
+        });
     }
 }

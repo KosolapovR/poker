@@ -3,7 +3,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var Hand = require('pokersolver').Hand;
 var isEqual = require('lodash.isequal');
-import {Game} from "./game/game";
+var Game = require('./game/game');
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
@@ -36,7 +36,7 @@ io.on('connection', function (socket) {
         if (players.length <= 6) {
             socket.join('PokerRoom');
 
-            socket.player = game.addPlayer(user);
+            socket.player = game.addPlayer({user: user});
             console.log(game.getPositionsInGame());
 
             emitAllUsersInRoom('PokerRoom');
@@ -45,7 +45,10 @@ io.on('connection', function (socket) {
     });
 
     socket.on('nextHand', () => {
-        changePositions(positionsInGame);
+        game.dealCards();
+        game.getPlayers().forEach(p => {
+            console.log(p.getName() + ' ' + p.getCards())
+        });
     });
 
     socket.on('disconnect', () => {

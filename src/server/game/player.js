@@ -33,10 +33,10 @@ var Player = /** @class */ (function () {
         this.getStatus = function () {
             return _this.status;
         };
-        this.getCards = function (cards) {
+        this.setCards = function (cards) {
             _this.cards = cards;
         };
-        this.setCards = function (strings) {
+        this.getCards = function (strings) {
             return _this.cards;
         };
         this.setTimeBank = function (timeBank) {
@@ -44,11 +44,6 @@ var Player = /** @class */ (function () {
         };
         this.getTimeBank = function () {
             return _this.timeBank;
-        };
-        this.countdownStart = function () {
-            _this.countDownId = setTimeout(function () {
-                this.setTimebank(0);
-            }, _this.getTimeBank());
         };
         this.id = place;
         this.name = name;

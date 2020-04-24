@@ -10,6 +10,7 @@ import ActionBar from "../components/actionBar";
 import {makeStyles} from "@material-ui/core/styles";
 import {connect} from "react-redux";
 import {wsConnectAC} from "../../state/ws";
+import {wsNextHandAC} from "../../state/ws/actions";
 
 const useStyles = makeStyles({
     actionBar: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles({
 });
 
 
-function Table({connected, connect}) {
+function Table({connected, connect, nextHand}) {
 
     useEffect(() => {
         connect()
@@ -176,6 +177,10 @@ function Table({connected, connect}) {
         },
     ];
 
+    const dealNextHand = () => {
+        nextHand()
+    };
+
     return (
         <div style={{backgroundImage: `url(${PokerTable})`, position: "relative", width: '756px', height: '359px'}}>
             <div style={{width: "min-content", margin: '80px auto', display: 'flex'}}>
@@ -197,6 +202,10 @@ function Table({connected, connect}) {
                     setRiver({value: 'Jd'})
                 }}>River
                 </button>
+                <button style={{marginTop: '-30px'}} onClick={() => {
+                    dealNextHand()
+                }}>River
+                </button>
             </div>
             <ActionBar className={classes.actionBar}/>
         </div>
@@ -211,6 +220,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     connect: () => {
         dispatch(wsConnectAC())
+    },
+    nextHand: () => {
+        dispatch(wsNextHandAC())
     }
 });
 

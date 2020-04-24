@@ -1,4 +1,4 @@
-import {WS_CONNECTED} from "../ws/types";
+import {WS_CONNECTED, WS_NEXT_HAND} from "../ws/types";
 import openSocket from "socket.io-client";
 import {wsConnectAC} from "../ws";
 
@@ -25,9 +25,9 @@ const socketMiddleware = () => {
                 socket = null;
                 console.log('websocket closed');
                 break;
-            case 'NEW_MESSAGE':
-                console.log('sending a message', action.msg);
-                socket.send(JSON.stringify({command: 'NEW_MESSAGE', message: action.msg}));
+            case WS_NEXT_HAND:
+                socket.emit('nextHand');
+
                 break;
             default: {
                 console.log('the next action:', action);

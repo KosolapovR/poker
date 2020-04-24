@@ -1,18 +1,18 @@
 export class Player {
 
-    private readonly id: number;
+    private readonly id: number | undefined;
     private readonly name: string;
     private cash: number;
-    private place: number;
+    private place: number | undefined;
     private position: string;
     private status: string;
     private timeBank: number;
-    private cards: Array<string>;
+    private cards: string[][];
     private countDownId: any;
 
     constructor(name: string,
                 cash: number,
-                place: number,
+                place: number | undefined,
                 position: string,
                 status: string) {
 
@@ -34,7 +34,7 @@ export class Player {
         return this.name;
     };
 
-    setCash = (newCash) => {
+    setCash = (newCash: number) => {
         this.cash = newCash;
     };
 
@@ -42,7 +42,7 @@ export class Player {
         return this.cash;
     };
 
-    setPlace = (newPlace) => {
+    setPlace = (newPlace: number) => {
         this.place = newPlace;
     };
 
@@ -50,7 +50,7 @@ export class Player {
         return this.place;
     };
 
-    setPosition = (newPosition) => {
+    setPosition = (newPosition: string) => {
         this.position = newPosition;
     };
 
@@ -58,7 +58,7 @@ export class Player {
         return this.position;
     };
 
-    setStatus = (newStatus) => {
+    setStatus = (newStatus: string) => {
         this.status = newStatus;
     };
 
@@ -66,11 +66,11 @@ export class Player {
         return this.status;
     };
 
-    getCards = (cards: Array<string>) => {
+    setCards = (cards: string[][]) => {
         this.cards = cards;
     };
 
-    setCards = (strings: string[]) => {
+    getCards = (strings: string[][]) => {
         return this.cards;
     };
 
@@ -81,10 +81,10 @@ export class Player {
     getTimeBank = () => {
         return this.timeBank;
     };
-
+/*
     countdownStart = () => {
         this.countDownId = setTimeout(function () {
             this.setTimebank(0);
         }, this.getTimeBank());
-    };
+    };*/
 };
