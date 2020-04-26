@@ -22,7 +22,7 @@ export class Player {
         this.place = place;
         this.position = position;
         this.status = status;
-        this.timeBank = 30;
+        this.timeBank = 5000;
         this.cards = [];
     }
 
