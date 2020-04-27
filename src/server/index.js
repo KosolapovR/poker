@@ -4,20 +4,17 @@ var io = require('socket.io')(http);
 var Hand = require('pokersolver').Hand;
 var isEqual = require('lodash.isequal');
 var Game = require('./game/game');
+var types = require('./game/types');
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-const PORT = 8080,
-
-    emptyPlaces = [6, 5, 4, 3, 2, 1],
-    positions = ['sb', 'bb', 'utg', 'mp', 'cut', 'but'],
-    positionsInGame = [],
-    players = [],
-    statuses = ['inGame', 'wait', 'fold', 'show'];
+const PORT = 8080;
 
 const game = new Game();
+game.subscribe(gameEventHandler);
+
 
 io.on('connection', function (socket) {
 
@@ -33,7 +30,7 @@ io.on('connection', function (socket) {
         console.log('Зашел   новый пользователь');*/
 
         //проверка наличия мест
-        if (players.length <= 6) {
+        if (game.getPlayers().length <= 6) {
             socket.join('PokerRoom');
 
             socket.player = game.addPlayer({user: user});
@@ -60,6 +57,30 @@ io.on('connection', function (socket) {
     })
 });
 
+function gameEventHandler(event) {
+    switch (event.type) {
+        case types.DEAL_HAND: {
+            console.log('Раздача карт');
+            io.sockets.emit('dealHand', event.data);
+            break;
+        }
+        case types.START_TIMER: {
+            console.log('Старт таймера');
+            io.sockets.emit('startTimer', event.data);
+            break;
+        }
+        case types.STOP_TIMER: {
+            console.log('Конец таймера');
+            io.sockets.emit('stopTimer', event.data);
+            break;
+        }
+        default: {
+            console.log('Поступил необрабатываемый event');
+            break;
+        }
+    }
+}
+
 function emitAllUsersInRoom(roomId) {
     let clients = io.sockets.adapter.rooms[roomId];
 
@@ -70,16 +91,6 @@ function emitAllUsersInRoom(roomId) {
     }
 
     io.sockets.emit('usersInRoom', players);
-}
-
-function changePositions(positions) {
-
-    const newPositions = [];
-
-    for (let i = 0; i < positions.length; i++) {
-        newPositions[i] = i === positions.length - 1 ? positions[0] : positions[i + 1];
-    }
-
 }
 
 http.listen(PORT, function () {

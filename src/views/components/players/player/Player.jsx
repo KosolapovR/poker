@@ -94,14 +94,14 @@ function Player({name, dealer, bigBlind, smallBlind, fold, cards, position, img,
                 </div>}
                 {showCards && <div className={classes.pocketPair}>
                     <div className={classes.leftCard}>
-                        <Card value={cards[0].value}/>
+                        <Card value={cards[0]}/>
                     </div>
 
-                    <Card value={cards[1].value}/>
+                    <Card value={cards[1]}/>
                 </div>}
                 <Grid className={classes.card} container item>
                     <Grid xs={4} item>
-                        <Avatar src={img.Avatar} alt='avatar'/>
+                        <Avatar alt='avatar'/>
                     </Grid>
                     <Grid xs={8} item container direction='column' justify='center' alignItems='center'>
                         <Grid item>{name}</Grid>

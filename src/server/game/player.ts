@@ -9,6 +9,7 @@ export class Player {
     private timeBank: number;
     private cards: string[][];
     private countDownId: any;
+    public isActive: boolean;
 
     constructor(name: string,
                 cash: number,
@@ -24,6 +25,7 @@ export class Player {
         this.status = status;
         this.timeBank = 5000;
         this.cards = [];
+        this.isActive = false;
     }
 
     getId = () => {

@@ -2,9 +2,13 @@
 exports.__esModule = true;
 var player_1 = require("./player");
 var hand_1 = require("./hand");
+var types_1 = require("./types");
 var Game = /** @class */ (function () {
     function Game() {
         var _this = this;
+        this.subscribe = function (callback) {
+            _this.observableCallback = callback;
+        };
         this.getFirstPlayer = function () {
             var player = _this.players.find(function (p) {
                 return p.getPosition() === _this.positionsInGame[_this.positionsInGame.length - 1];
@@ -12,6 +16,7 @@ var Game = /** @class */ (function () {
             return player;
         };
         this.setActivePlayer = function (player) {
+            player.isActive = true;
             _this.activePlayer = player;
         };
         this.getActivePlayer = function () {
@@ -45,11 +50,14 @@ var Game = /** @class */ (function () {
             return _this.positionsInGame;
         };
         this.dealCards = function () {
-            if (_this.players && _this.players.length > 1) {
-                console.log('Dealing cards');
+            if (_this.players && _this.players.length > 1 && _this.observableCallback) {
+                //раздача карт
                 _this.setCurrentHand(new hand_1.Hand(_this.players));
+                //установка активного игрока
                 var firstPlayer = _this.getFirstPlayer();
                 _this.setActivePlayer(firstPlayer);
+                _this.observableCallback({ type: types_1.DEAL_HAND, data: _this.players });
+                //запуск таймера
                 _this.startPlayerTimeBank(firstPlayer);
             }
         };
@@ -63,21 +71,25 @@ var Game = /** @class */ (function () {
         };
         this.startPlayerTimeBank = function (player) {
             if (_this.players && _this.players.length > 1) {
-                console.log('Player on position: ', player.getPosition(), 'startTimeBank');
+                var timeBank = player.getTimeBank();
                 _this.timerId = setTimeout(function () {
                     _this.stopPlayerTimeBank();
-                }, player.getTimeBank());
+                }, timeBank);
+                if (_this.observableCallback) {
+                    var time = Date.now() + timeBank;
+                    _this.observableCallback({ type: types_1.START_TIMER, data: { player: player, time: time } });
+                }
             }
         };
         this.stopPlayerTimeBank = function () {
-            var _a;
-            console.log('Player on position: ', (_a = _this.activePlayer) === null || _a === void 0 ? void 0 : _a.getPosition(), 'endTimeBank');
+            //осановка таймера
             clearTimeout(_this.timerId);
+            //уведомление подписчика
+            if (_this.observableCallback)
+                _this.observableCallback({ type: types_1.STOP_TIMER, data: { player: _this.activePlayer } });
             var nextPlayer = _this.getNextPlayer();
-            console.log('nextPlayer = ', nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition());
             if (nextPlayer) {
                 _this.setActivePlayer(nextPlayer);
-                console.log('смена активного игрока');
                 _this.startPlayerTimeBank(nextPlayer);
             }
         };

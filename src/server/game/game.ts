@@ -1,5 +1,6 @@
 import {Player} from "./player";
 import {Hand} from "./hand";
+import {DEAL_HAND, START_TIMER, STOP_TIMER} from "./types";
 
 class Game {
     private players: Array<Player>;
@@ -11,6 +12,7 @@ class Game {
     private statuses: Array<string>;
     private activePlayer: Player | undefined;
     private timerId: NodeJS.Timeout | undefined;
+    private observableCallback: Function | undefined;
 
     constructor() {
         this.players = [];
@@ -20,6 +22,10 @@ class Game {
         this.statuses = ['inGame', 'wait', 'fold', 'show'];
     }
 
+    subscribe = (callback: Function) => {
+        this.observableCallback = callback;
+    };
+
     getFirstPlayer = () => {
         const player: Player | undefined = this.players.find(p =>
             p.getPosition() === this.positionsInGame[this.positionsInGame.length - 1]);
@@ -27,6 +33,7 @@ class Game {
     };
 
     setActivePlayer = (player: Player) => {
+        player.isActive = true;
         this.activePlayer = player;
     };
 
@@ -71,13 +78,18 @@ class Game {
     };
 
     dealCards = () => {
-        if (this.players && this.players.length > 1) {
-            console.log('Dealing cards');
+        if (this.players && this.players.length > 1 && this.observableCallback) {
+
+            //раздача карт
             this.setCurrentHand(new Hand(this.players));
 
+            //установка активного игрока
             const firstPlayer = this.getFirstPlayer();
-
             this.setActivePlayer(firstPlayer);
+            this.observableCallback({type: DEAL_HAND, data: this.players});
+
+
+            //запуск таймера
             this.startPlayerTimeBank(firstPlayer)
         }
     };
@@ -96,30 +108,41 @@ class Game {
         const place: number | undefined = this.activePlayer?.getPlace();
         console.log('active player place = ', place);
         if (place) {
-                return this.players.find(p => p.getPlace() === place - 1)
+            return this.players.find(p => p.getPlace() === place - 1)
         }
     };
 
     startPlayerTimeBank = (player: Player) => {
         if (this.players && this.players.length > 1) {
-            console.log('Player on position: ', player.getPosition(), 'startTimeBank');
+
+            const timeBank = player.getTimeBank();
+
             this.timerId = setTimeout(() => {
                 this.stopPlayerTimeBank();
-            }, player.getTimeBank());
+            }, timeBank);
+
+            if (this.observableCallback) {
+                const time = Date.now() + timeBank;
+                this.observableCallback({type: START_TIMER, data: {player, time}});
+            }
         }
     };
 
     stopPlayerTimeBank = (): void => {
-        console.log('Player on position: ', this.activePlayer?.getPosition(), 'endTimeBank');
+        //осановка таймера
         clearTimeout(<NodeJS.Timeout>this.timerId);
+
+        //уведомление подписчика
+        if (this.observableCallback)
+            this.observableCallback({type: STOP_TIMER, data: {player: this.activePlayer}});
+
         const nextPlayer: Player | undefined = this.getNextPlayer();
-        console.log('nextPlayer = ', nextPlayer?.getPosition());
+
         if (nextPlayer) {
+
             this.setActivePlayer(nextPlayer);
-            console.log('смена активного игрока');
             this.startPlayerTimeBank(nextPlayer);
         }
-
     }
 };
 

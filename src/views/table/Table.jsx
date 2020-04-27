@@ -11,6 +11,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import {connect} from "react-redux";
 import {wsConnectAC} from "../../state/ws";
 import {wsNextHandAC} from "../../state/ws/actions";
+import {getCoordsByPlace} from "../../utils/tablePositions";
 
 const useStyles = makeStyles({
     actionBar: {
@@ -21,11 +22,25 @@ const useStyles = makeStyles({
 });
 
 
-function Table({connected, connect, nextHand}) {
+function Table({connected, connect, nextHand, realPlayers}) {
 
     useEffect(() => {
         connect()
     }, []);
+
+    if (realPlayers) {
+        console.log('players', realPlayers);
+
+        realPlayers = realPlayers.map(p => ({
+            ...p,
+            order: p.place,
+            position: getCoordsByPlace(p.place),
+            showCards: true,
+        }));
+
+        console.log(realPlayers);
+    }
+
 
     console.log(connected);
     const classes = useStyles();
@@ -187,7 +202,7 @@ function Table({connected, connect, nextHand}) {
                 <Flop cards={flop}/>
                 <Turn card={turn}/>
                 <River card={river}/>
-                <Players players={players}/>
+                <Players players={realPlayers}/>
                 <Bank amount={321}/>
                 <button style={{marginTop: '-30px'}} onClick={() => {
                     setFold(true);
@@ -214,7 +229,8 @@ function Table({connected, connect, nextHand}) {
 
 
 const mapStateToProps = state => ({
-    connected: state.ws.connected
+    connected: state.ws.connected,
+    realPlayers: state.Game.players
 });
 
 const mapDispatchToProps = dispatch => ({

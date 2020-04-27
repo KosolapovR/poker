@@ -53,6 +53,7 @@ var Player = /** @class */ (function () {
         this.status = status;
         this.timeBank = 5000;
         this.cards = [];
+        this.isActive = false;
     }
     return Player;
 }());
