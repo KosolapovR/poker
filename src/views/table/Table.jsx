@@ -29,20 +29,14 @@ function Table({connected, connect, nextHand, realPlayers}) {
     }, []);
 
     if (realPlayers) {
-        console.log('players', realPlayers);
-
         realPlayers = realPlayers.map(p => ({
             ...p,
             order: p.place,
             position: getCoordsByPlace(p.place),
             showCards: true,
         }));
-
-        console.log(realPlayers);
     }
 
-
-    console.log(connected);
     const classes = useStyles();
     const [suit, setSuit] = useState('hearts');
     const [value, setValue] = useState('A');

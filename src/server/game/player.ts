@@ -10,6 +10,10 @@ export class Player {
     private cards: string[][];
     private countDownId: any;
     public isActive: boolean;
+    public bet: number | null;
+    public fold: boolean | null;
+    public check: boolean | null;
+    public call: boolean | null;
 
     constructor(name: string,
                 cash: number,
@@ -26,6 +30,10 @@ export class Player {
         this.timeBank = 5000;
         this.cards = [];
         this.isActive = false;
+        this.bet = null;
+        this.fold = null;
+        this.check = null;
+        this.call = null;
     }
 
     getId = () => {

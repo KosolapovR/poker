@@ -43,9 +43,22 @@ io.on('connection', function (socket) {
 
     socket.on('nextHand', () => {
         game.dealCards();
-        game.getPlayers().forEach(p => {
-            console.log(p.getName() + ' ' + p.getCards())
-        });
+    });
+
+    socket.on('bet', (value) => {
+        game.playerBet(socket.player, 30);
+    });
+
+    socket.on('call', () => {
+        game.playerCall(socket.player);
+    });
+
+    socket.on('check', () => {
+        game.playerCheck(socket.player);
+    });
+
+    socket.on('fold', () => {
+        game.playerFold(socket.player);
     });
 
     socket.on('disconnect', () => {

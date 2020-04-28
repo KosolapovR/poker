@@ -129,7 +129,7 @@ class Game {
     };
 
     stopPlayerTimeBank = (): void => {
-        //осановка таймера
+        //остановка таймера
         clearTimeout(<NodeJS.Timeout>this.timerId);
 
         //уведомление подписчика
@@ -143,6 +143,42 @@ class Game {
             this.setActivePlayer(nextPlayer);
             this.startPlayerTimeBank(nextPlayer);
         }
+    };
+
+    playerBet = (player: Player, value: number) => {
+        const playerWithBet = this.players.find(p => p.getPlace() === player.getPlace());
+        if (playerWithBet) {
+            playerWithBet.bet = value;
+            this.stopPlayerTimeBank();
+        }
+    };
+
+    playerCall = (player: Player) => {
+        const playerWithCall = this.players.find(p => p.getPlace() === player.getPlace());
+        if (playerWithCall) {
+            playerWithCall.call = true;
+            this.stopPlayerTimeBank();
+        }
+    };
+
+    playerFold = (player: Player) => {
+        const playerWithFold = this.players.find(p => p.getPlace() === player.getPlace());
+        if (playerWithFold) {
+            playerWithFold.fold = true;
+            this.stopPlayerTimeBank();
+        }
+    };
+
+    playerCheck = (player: Player) => {
+        const playerWithCheck = this.players.find(p => p.getPlace() === player.getPlace());
+        if (playerWithCheck) {
+            playerWithCheck.check = true;
+            this.stopPlayerTimeBank();
+        }
+    };
+
+    refreshPlayers = (): void => {
+
     }
 };
 
