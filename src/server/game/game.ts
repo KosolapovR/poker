@@ -1,6 +1,18 @@
 import {Player} from "./player";
 import {Hand} from "./hand";
-import {DEAL_HAND, START_TIMER, STOP_TIMER} from "./types";
+import {
+    DEAL_HAND,
+    FLOP,
+    GAME_STATUS_IN_GAME,
+    GAME_STATUS_WAIT,
+    PREFLOP,
+    RIVER,
+    SHOWDOWN,
+    START_TIMER,
+    STOP_TIMER,
+    TURN
+} from "./types";
+import Bank from "./Bank";
 
 class Game {
     private players: Array<Player>;
@@ -13,6 +25,8 @@ class Game {
     private activePlayer: Player | undefined;
     private timerId: NodeJS.Timeout | undefined;
     private observableCallback: Function | undefined;
+    private round: string | undefined;
+    private bank: Bank | undefined;
 
     constructor() {
         this.players = [];
@@ -41,12 +55,12 @@ class Game {
         return <Player>this.activePlayer;
     };
 
-    getPlayers = () => {
-        return <Array<Player>>this.players
+    getPlayersInRound = (): Array<Player> => {
+        return this.players.filter(p => p.getStatus() !== GAME_STATUS_IN_GAME)
     };
 
-    hasEmptyPlaces = () => {
-        return Boolean(this.emptyPlaces.length);
+    getPlayers = () => {
+        return <Array<Player>>this.players
     };
 
     addPlayer = ({user}: { user: any }) => {
@@ -80,6 +94,12 @@ class Game {
     dealCards = () => {
         if (this.players && this.players.length > 1 && this.observableCallback) {
 
+            this.postBlinds();
+
+            this.round = PREFLOP;
+
+            this.players.forEach(p => p.setStatus(GAME_STATUS_IN_GAME));
+
             //раздача карт
             this.setCurrentHand(new Hand(this.players));
 
@@ -106,7 +126,7 @@ class Game {
 
     getNextPlayer = () => {
         const place: number | undefined = this.activePlayer?.getPlace();
-        console.log('active player place = ', place);
+
         if (place) {
             return this.players.find(p => p.getPlace() === place - 1)
         }
@@ -139,46 +159,175 @@ class Game {
         const nextPlayer: Player | undefined = this.getNextPlayer();
 
         if (nextPlayer) {
-
             this.setActivePlayer(nextPlayer);
             this.startPlayerTimeBank(nextPlayer);
+        } else {
+            //обработка выигрыша без вскрытия
+            if (this.getPlayersInRound().length < 2) {
+                const winner = this.getPlayersInRound()[0];
+
+                this.playerWinWithoutShowDown(winner);
+
+                this.dealCards();
+            } else {
+                this.nextRound();
+            }
         }
     };
 
-    playerBet = (player: Player, value: number) => {
-        const playerWithBet = this.players.find(p => p.getPlace() === player.getPlace());
-        if (playerWithBet) {
-            playerWithBet.bet = value;
+    playerBet = (betValue: number) => {
+        if (this.activePlayer && this.bank) {
+
+            const isBetSuccess = this.activePlayer.decreaseCash(betValue);
+
+            if (isBetSuccess) {
+                this.activePlayer.bet = betValue;
+                this.bank.addCash(betValue);
+
+                this.stopPlayerTimeBank();
+            }
+        }
+    };
+
+    playerCall = () => {
+        if (this.activePlayer && this.bank) {
+
+            const callValue = this.bank.getBetValue();
+
+            const isCallSuccess = this.activePlayer.decreaseCash(callValue);
+
+            if (isCallSuccess) {
+                this.activePlayer.call = callValue
+                this.bank.addCash(callValue);
+
+                this.stopPlayerTimeBank();
+            }
+        }
+    };
+
+    playerFold = () => {
+        if (this.activePlayer) {
+            this.activePlayer.fold = true;
+            this.activePlayer.setStatus(GAME_STATUS_WAIT);
             this.stopPlayerTimeBank();
         }
     };
 
-    playerCall = (player: Player) => {
-        const playerWithCall = this.players.find(p => p.getPlace() === player.getPlace());
-        if (playerWithCall) {
-            playerWithCall.call = true;
-            this.stopPlayerTimeBank();
-        }
-    };
-
-    playerFold = (player: Player) => {
-        const playerWithFold = this.players.find(p => p.getPlace() === player.getPlace());
-        if (playerWithFold) {
-            playerWithFold.fold = true;
-            this.stopPlayerTimeBank();
-        }
-    };
-
-    playerCheck = (player: Player) => {
-        const playerWithCheck = this.players.find(p => p.getPlace() === player.getPlace());
-        if (playerWithCheck) {
-            playerWithCheck.check = true;
+    playerCheck = () => {
+        if (this.activePlayer) {
+            this.activePlayer.check = true;
             this.stopPlayerTimeBank();
         }
     };
 
     refreshPlayers = (): void => {
+        this.players.forEach(p => {
+            p.check = false;
+            p.call = null;
+            p.bet = null;
+            p.fold = false;
+        })
+    };
 
+    postBlinds = () => {
+
+        const playerOnBB = this.players.find(p => p.getPosition() === 'bb');
+        const playerOnSB = this.players.find(p => p.getPosition() === 'sb');
+
+        let smallBlind = 0;
+        let bigBlind = 0;
+
+        if (playerOnBB) {
+            bigBlind = playerOnBB.postBigBlind(2);
+        }
+
+        if (playerOnSB) {
+            smallBlind = playerOnSB.postSmallBlind(1);
+        }
+
+        this.bank = new Bank(smallBlind + bigBlind);
+        this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
+    };
+
+    dealFlop = () => {
+        const flop = this.currentHand?.generateFlop();
+
+        //установка активного игрока
+        const firstPlayer = this.getFirstPlayer();
+        this.setActivePlayer(firstPlayer);
+
+        if (this.observableCallback)
+            this.observableCallback({type: FLOP, data: flop});
+
+        //запуск таймера
+        this.startPlayerTimeBank(firstPlayer)
+    };
+
+    dealTurn = () => {
+        const turn = this.currentHand?.generateTurn();
+
+        //установка активного игрока
+        const firstPlayer = this.getFirstPlayer();
+        this.setActivePlayer(firstPlayer);
+
+        if (this.observableCallback)
+            this.observableCallback({type: TURN, data: turn});
+
+        //запуск таймера
+        this.startPlayerTimeBank(firstPlayer)
+    };
+
+    dealRiver = () => {
+        const river = this.currentHand?.generateRiver();
+
+        //установка активного игрока
+        const firstPlayer = this.getFirstPlayer();
+        this.setActivePlayer(firstPlayer);
+
+        if (this.observableCallback)
+            this.observableCallback({type: RIVER, data: river});
+
+        //запуск таймера
+        this.startPlayerTimeBank(firstPlayer)
+    };
+
+    showdown = () => {
+
+    };
+
+    playerWinWithoutShowDown = (winner: Player) => {
+        if (this.bank) {
+            winner.increaseCash(this.bank.getCash());
+        }
+    };
+
+    nextRound = () => {
+
+        this.refreshPlayers();
+
+        switch (this.round) {
+            case PREFLOP: {
+                this.dealFlop();
+                break;
+            }
+            case FLOP: {
+                this.dealTurn();
+                break;
+            }
+            case TURN: {
+                this.dealRiver();
+                break;
+            }
+            case RIVER: {
+                this.showdown();
+                break;
+            }
+            case SHOWDOWN: {
+                this.dealCards()
+            }
+            default:
+                break;
+        }
     }
 };
 

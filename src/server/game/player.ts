@@ -1,3 +1,5 @@
+import {GAME_STATUS_WAIT} from "./types";
+
 export class Player {
 
     private readonly id: number | undefined;
@@ -13,7 +15,7 @@ export class Player {
     public bet: number | null;
     public fold: boolean | null;
     public check: boolean | null;
-    public call: boolean | null;
+    public call: number | null;
 
     constructor(name: string,
                 cash: number,
@@ -48,8 +50,43 @@ export class Player {
         this.cash = newCash;
     };
 
+    increaseCash = (value: number) => {
+      this.cash += value;
+    };
+
+    decreaseCash = (value: number): boolean => {
+        if(this.cash >= value){
+            this.cash -= value;
+            return true;
+        }else{
+            return false;
+        }
+    };
+
     getCash = () => {
         return this.cash;
+    };
+
+    postBigBlind = (value: number) => {
+        if (this.getCash() >= value) {
+            this.setCash(this.getCash() - value);
+            return value;
+        } else {
+            //нехватает денег на установку блайнда
+            this.setStatus(GAME_STATUS_WAIT);
+            return 0
+        }
+    };
+
+    postSmallBlind = (value: number): number => {
+        if (this.getCash() >= value) {
+            this.setCash(this.getCash() - value);
+            return value;
+        } else {
+            //нехватает денег на установку блайнда
+            this.setStatus(GAME_STATUS_WAIT);
+            return 0
+        }
     };
 
     setPlace = (newPlace: number) => {
@@ -91,10 +128,10 @@ export class Player {
     getTimeBank = () => {
         return this.timeBank;
     };
-/*
-    countdownStart = () => {
-        this.countDownId = setTimeout(function () {
-            this.setTimebank(0);
-        }, this.getTimeBank());
-    };*/
+    /*
+        countdownStart = () => {
+            this.countDownId = setTimeout(function () {
+                this.setTimebank(0);
+            }, this.getTimeBank());
+        };*/
 };

@@ -3,6 +3,9 @@ import {Player} from "./player";
 export class Hand {
     private readonly deck: Array<string>;
     private currentDeck: Array<string>;
+    private flop: Array<string> | undefined;
+    private turn: string | undefined;
+    private river: string | undefined;
 
     constructor(players: Array<Player>) {
         this.deck = [
@@ -24,5 +27,37 @@ export class Hand {
 
             p.setCards([card1, card2]);
         });
-    }
+    };
+
+    public generateFlop = (): Array<string> => {
+        const card1 = this.currentDeck.splice(Math.floor(Math.random() * this.currentDeck.length), 1);
+        const card2 = this.currentDeck.splice(Math.floor(Math.random() * this.currentDeck.length), 1);
+        const card3 = this.currentDeck.splice(Math.floor(Math.random() * this.currentDeck.length), 1);
+
+        return this.flop = [...card1, ...card2, ...card3];
+    };
+
+    public generateTurn = (): string => {
+        const card = this.currentDeck.splice(Math.floor(Math.random() * this.currentDeck.length), 1);
+
+        return this.turn = card[0];
+    };
+
+    public generateRiver = (): string => {
+        const card = this.currentDeck.splice(Math.floor(Math.random() * this.currentDeck.length), 1);
+
+        return this.river = card[0];
+    };
+
+    public getFlop = (): Array<string> | undefined => {
+        return this.flop;
+    };
+
+    public getTurn = (): string | undefined => {
+        return this.turn;
+    };
+
+    public getRiver = (): string | undefined => {
+        return this.river;
+    };
 }
