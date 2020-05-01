@@ -34,6 +34,7 @@ io.on('connection', function (socket) {
             socket.join('PokerRoom');
 
             socket.player = game.addPlayer({user: user});
+            socket.emit('myPlace', socket.player.getPlace());
             console.log(game.getPositionsInGame());
 
             emitAllUsersInRoom('PokerRoom');

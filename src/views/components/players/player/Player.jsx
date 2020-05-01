@@ -9,8 +9,9 @@ import Card from "../../card";
 import CardBackground from "../../cardBackground";
 import FoldedCards from "../../foldedCards";
 import Button from "../../button";
+import TimeBank from "../../timeBank";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     root: {
         width: '200px',
         height: '100px',
@@ -44,50 +45,50 @@ const useStyles = makeStyles({
         left: '55px',
         zIndex: 10,
         display: 'flex'
-    }
-});
+    },
+}));
 
-function Player({name, dealer, bigBlind, smallBlind, fold, cards, position, img, cash, bet, me, showCards}) {
+function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, cards, position, positions, img, cash, bet, me, showCards, ...props}) {
 
-
-    const classes = useStyles(position);
+    const classes = useStyles(positions);
 
     if (me) {
         return (
             <Grid container direction='column-reverse' className={classes.root}>
-                {bet && <Bet position={position} value={bet}/>}
-                {fold && <FoldedCards position={position.fold}/>}
-                {dealer && <Button position={position.button} type='dealer'/>}
-                {bigBlind && <Button position={position.button} type='bigBlind'/>}
-                {smallBlind && <Button position={position.button} type='smallBlind'/>}
+                {bet && <Bet position={positions} value={bet}/>}
+                {fold && <FoldedCards position={positions.fold}/>}
+                {dealer && <Button position={positions.button} type='dealer'/>}
+                {bigBlind && <Button position={positions.button} type='bigBlind'/>}
+                {smallBlind && <Button position={positions.button} type='smallBlind'/>}
                 {cards.length > 0 &&
                 <div className={classes.pocketPair}>
                     <div className={classes.leftCard}>
-                        <Card value={cards[0].value}/>
+                        <Card value={cards[0]}/>
                     </div>
 
-                    <Card value={cards[1].value}/>
+                    <Card value={cards[1]}/>
                 </div>
                 }
                 <Grid className={classes.card} container item>
                     <Grid xs={4} item>
-                        <Avatar src={img.Avatar} alt='avatar'/>
+                        {/*<Avatar src={img.Avatar} alt='avatar'/>*/}
                     </Grid>
                     <Grid xs={8} item container direction='column' justify='center' alignItems='center'>
-                        <Grid item>{name}</Grid>
+                        <Grid item>{position}</Grid>
                         <Grid item>{cash}</Grid>
                     </Grid>
                 </Grid>
+                {isActive && <TimeBank/>}
             </Grid>
         );
     } else {
         return (
             <Grid container direction='column-reverse' className={classes.root}>
-                {bet && <Bet value={bet} position={position}/>}
-                {fold && <FoldedCards position={position.fold}/>}
-                {dealer && <Button position={position.button} type='dealer'/>}
-                {bigBlind && <Button position={position.button} type='bigBlind'/>}
-                {smallBlind && <Button position={position.button} type='smallBlind'/>}
+                {bet && <Bet value={bet} position={positions}/>}
+                {fold && <FoldedCards position={positions.fold}/>}
+                {dealer && <Button position={positions.button} type='dealer'/>}
+                {bigBlind && <Button position={positions.button} type='bigBlind'/>}
+                {smallBlind && <Button position={positions.button} type='smallBlind'/>}
                 {cards && !fold && cards.length > 0 && !showCards && <div className={classes.pocketPairHidden}>
                     <CardBackground/>
                     <CardBackground/>
@@ -104,10 +105,11 @@ function Player({name, dealer, bigBlind, smallBlind, fold, cards, position, img,
                         <Avatar alt='avatar'/>
                     </Grid>
                     <Grid xs={8} item container direction='column' justify='center' alignItems='center'>
-                        <Grid item>{name}</Grid>
+                        <Grid item>{position}</Grid>
                         <Grid item>{cash}</Grid>
                     </Grid>
                 </Grid>
+                {isActive && <TimeBank/>}
             </Grid>
         );
     }

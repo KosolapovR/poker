@@ -10,24 +10,27 @@ function Players({players}) {
                     key={i}
                     cards={p.cards}
                     position={p.position}
+                    positions={p.positions}
                     name={p.name}
                     status={p.status}
                     hasCards={p.hasCards}
                     order={p.order}
-                    img={p.img}
+                    /*img={p.img}*/
                     cash={p.cash}
                     me={true}
-                    bet={p.bet}
+                    /*bet={p.bet}*/
                     showCards={p.showCards}
                     fold={p.fold}
                     dealer={p.dealer}
                     bigBlind={p.bigBlind}
                     smallBlind={p.smallBlind}
+                    isActive = {p.isActive}
                 /> :
                 <Player
                     key={i}
                     cards={p.cards}
                     position={p.position}
+                    positions={p.positions}
                     name={p.name}
                     status={p.status}
                     hasCards={true}
@@ -40,6 +43,7 @@ function Players({players}) {
                     dealer={p.dealer}
                     bigBlind={p.bigBlind}
                     smallBlind={p.smallBlind}
+                    isActive = {p.isActive}
                 />);
 
     }

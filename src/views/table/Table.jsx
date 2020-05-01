@@ -22,7 +22,7 @@ const useStyles = makeStyles({
 });
 
 
-function Table({connected, connect, nextHand, realPlayers}) {
+function Table({connected, connect, nextHand, realPlayers, heroPlace}) {
 
     useEffect(() => {
         connect()
@@ -32,11 +32,16 @@ function Table({connected, connect, nextHand, realPlayers}) {
         realPlayers = realPlayers.map(p => ({
             ...p,
             order: p.place,
-            position: getCoordsByPlace(p.place),
-            showCards: true,
+            positions: getCoordsByPlace(p.place),
+            showCards: false,
         }));
+        
+        const hero = realPlayers.find(p => p.place === heroPlace);
+        hero.me = true;
+        hero.showCards = true;
+        debugger;
     }
-
+    
     const classes = useStyles();
     const [suit, setSuit] = useState('hearts');
     const [value, setValue] = useState('A');
@@ -66,8 +71,6 @@ function Table({connected, connect, nextHand, realPlayers}) {
 
     const [showCards, setShowCards] = useState(false);
 
-    const suits = ['hearts', 'diamonds', 'spades', 'clubs'];
-    const values = ['A', 'K', 'Q', 'J', 'T', 9, 8, 7, 6, 5, 4, 3, 2];
 
     const players = [
         {
@@ -224,7 +227,8 @@ function Table({connected, connect, nextHand, realPlayers}) {
 
 const mapStateToProps = state => ({
     connected: state.ws.connected,
-    realPlayers: state.Game.players
+    realPlayers: state.Game.players,
+    heroPlace: state.Game.heroPlace
 });
 
 const mapDispatchToProps = dispatch => ({

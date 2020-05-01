@@ -19,9 +19,9 @@ class Game {
     private currentHand: Hand | undefined;
     private emptyPlaces: Array<number>;
     private placesInGame: Array<number> | undefined;
-    private availablePositions: Array<string>;
-    private positionsInGame: Array<string>;
-    private statuses: Array<string>;
+    private readonly availablePositions: Array<string>;
+    private readonly positionsInGame: Array<string>;
+    private readonly statuses: Array<string>;
     private activePlayer: Player | undefined;
     private timerId: NodeJS.Timeout | undefined;
     private observableCallback: Function | undefined;
@@ -142,8 +142,7 @@ class Game {
             }, timeBank);
 
             if (this.observableCallback) {
-                const time = Date.now() + timeBank;
-                this.observableCallback({type: START_TIMER, data: {player, time}});
+                this.observableCallback({type: START_TIMER, data: this.players});
             }
         }
     };
@@ -151,6 +150,8 @@ class Game {
     stopPlayerTimeBank = (): void => {
         //остановка таймера
         clearTimeout(<NodeJS.Timeout>this.timerId);
+
+        this.players.forEach(p => p.isActive = false);
 
         //уведомление подписчика
         if (this.observableCallback)
@@ -329,6 +330,6 @@ class Game {
                 break;
         }
     }
-};
+}
 
 module.exports = Game;
