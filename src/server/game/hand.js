@@ -17,6 +17,29 @@ var Hand = /** @class */ (function () {
                 p.setCards([card1, card2]);
             });
         };
+        this.generateFlop = function () {
+            var card1 = _this.currentDeck.splice(Math.floor(Math.random() * _this.currentDeck.length), 1);
+            var card2 = _this.currentDeck.splice(Math.floor(Math.random() * _this.currentDeck.length), 1);
+            var card3 = _this.currentDeck.splice(Math.floor(Math.random() * _this.currentDeck.length), 1);
+            return _this.flop = __spreadArrays(card1, card2, card3);
+        };
+        this.generateTurn = function () {
+            var card = _this.currentDeck.splice(Math.floor(Math.random() * _this.currentDeck.length), 1);
+            return _this.turn = card[0];
+        };
+        this.generateRiver = function () {
+            var card = _this.currentDeck.splice(Math.floor(Math.random() * _this.currentDeck.length), 1);
+            return _this.river = card[0];
+        };
+        this.getFlop = function () {
+            return _this.flop;
+        };
+        this.getTurn = function () {
+            return _this.turn;
+        };
+        this.getRiver = function () {
+            return _this.river;
+        };
         this.deck = [
             'Ah', 'Kh', 'Qh', 'Jh', 'Th', '9h', '8h', '7h', '6h', '5h', '4h', '3h', '2h',
             'As', 'Ks', 'Qs', 'Js', 'Ts', '9s', '8s', '7s', '6s', '5s', '4s', '3s', '2s',

@@ -1,0 +1,20 @@
+.root {
+    position: absolute;
+    display: flex;
+    bottom: -15px;
+    width: 200px;
+    height: 15px;
+    background: #DDD;
+    justify-content:  flex-end;
+    z-index: 100;
+}
+
+
+@keyframes timeLine {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0;
+    }
+}

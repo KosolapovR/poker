@@ -7,7 +7,7 @@ import Input from "@material-ui/core/Input";
 
 const useStyles = makeStyles({
     root: {
-        width: 250,
+        width: 300,
         position: 'fixed',
         bottom: '10px',
         right: '10px',
@@ -66,9 +66,12 @@ function ActionBar() {
                     />
                 </Grid>
             </Grid>
-            <Grid container>
+            <Grid container justify='space-between'>
                 <Grid item>
                     <Button variant='contained' color='secondary' size='small'>FOLD</Button>
+                </Grid>
+                <Grid item>
+                    <Button variant='contained' color='secondary' size='small'>CHECK</Button>
                 </Grid>
                 <Grid item>
                     <Button variant='contained' color='secondary' size='small'>CALL</Button>

@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+var types_1 = require("./types");
 var Player = /** @class */ (function () {
     function Player(name, cash, place, position, status) {
         var _this = this;
@@ -12,8 +13,42 @@ var Player = /** @class */ (function () {
         this.setCash = function (newCash) {
             _this.cash = newCash;
         };
+        this.increaseCash = function (value) {
+            _this.cash += value;
+        };
+        this.decreaseCash = function (value) {
+            if (_this.cash >= value) {
+                _this.cash -= value;
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
         this.getCash = function () {
             return _this.cash;
+        };
+        this.postBigBlind = function (value) {
+            if (_this.getCash() >= value) {
+                _this.setCash(_this.getCash() - value);
+                return value;
+            }
+            else {
+                //нехватает денег на установку блайнда
+                _this.setStatus(types_1.GAME_STATUS_WAIT);
+                return 0;
+            }
+        };
+        this.postSmallBlind = function (value) {
+            if (_this.getCash() >= value) {
+                _this.setCash(_this.getCash() - value);
+                return value;
+            }
+            else {
+                //нехватает денег на установку блайнда
+                _this.setStatus(types_1.GAME_STATUS_WAIT);
+                return 0;
+            }
         };
         this.setPlace = function (newPlace) {
             _this.place = newPlace;
@@ -54,6 +89,10 @@ var Player = /** @class */ (function () {
         this.timeBank = 5000;
         this.cards = [];
         this.isActive = false;
+        this.bet = null;
+        this.fold = null;
+        this.check = null;
+        this.call = null;
     }
     return Player;
 }());

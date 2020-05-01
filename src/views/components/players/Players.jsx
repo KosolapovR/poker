@@ -14,15 +14,16 @@ function Players({players}) {
                     status={p.status}
                     hasCards={p.hasCards}
                     order={p.order}
-                    img={p.img}
+                    /*img={p.img}*/
                     cash={p.cash}
                     me={true}
-                    bet={p.bet}
+                    /*bet={p.bet}*/
                     showCards={p.showCards}
                     fold={p.fold}
                     dealer={p.dealer}
                     bigBlind={p.bigBlind}
                     smallBlind={p.smallBlind}
+                    isActive = {p.isActive}
                 /> :
                 <Player
                     key={i}
@@ -40,6 +41,7 @@ function Players({players}) {
                     dealer={p.dealer}
                     bigBlind={p.bigBlind}
                     smallBlind={p.smallBlind}
+                    isActive = {p.isActive}
                 />);
 
     }

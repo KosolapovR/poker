@@ -9,8 +9,9 @@ import Card from "../../card";
 import CardBackground from "../../cardBackground";
 import FoldedCards from "../../foldedCards";
 import Button from "../../button";
+import TimeBank from "../../timeBank";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     root: {
         width: '200px',
         height: '100px',
@@ -44,12 +45,11 @@ const useStyles = makeStyles({
         left: '55px',
         zIndex: 10,
         display: 'flex'
-    }
-});
+    },
+}));
 
-function Player({name, dealer, bigBlind, smallBlind, fold, cards, position, img, cash, bet, me, showCards}) {
-
-
+function Player({name, dealer, bigBlind, smallBlind, fold, isActive, cards, position, img, cash, bet, me, showCards, ...props}) {
+    
     const classes = useStyles(position);
 
     if (me) {
@@ -63,21 +63,22 @@ function Player({name, dealer, bigBlind, smallBlind, fold, cards, position, img,
                 {cards.length > 0 &&
                 <div className={classes.pocketPair}>
                     <div className={classes.leftCard}>
-                        <Card value={cards[0].value}/>
+                        <Card value={cards[0]}/>
                     </div>
 
-                    <Card value={cards[1].value}/>
+                    <Card value={cards[1]}/>
                 </div>
                 }
                 <Grid className={classes.card} container item>
                     <Grid xs={4} item>
-                        <Avatar src={img.Avatar} alt='avatar'/>
+                        {/*<Avatar src={img.Avatar} alt='avatar'/>*/}
                     </Grid>
                     <Grid xs={8} item container direction='column' justify='center' alignItems='center'>
                         <Grid item>{name}</Grid>
                         <Grid item>{cash}</Grid>
                     </Grid>
                 </Grid>
+                {isActive && <TimeBank/>}
             </Grid>
         );
     } else {
@@ -108,6 +109,7 @@ function Player({name, dealer, bigBlind, smallBlind, fold, cards, position, img,
                         <Grid item>{cash}</Grid>
                     </Grid>
                 </Grid>
+                {isActive && <TimeBank/>}
             </Grid>
         );
     }

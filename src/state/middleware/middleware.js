@@ -1,6 +1,7 @@
 import {WS_CONNECTED, WS_NEXT_HAND} from "../ws/types";
 import openSocket from "socket.io-client";
 import {dealHandAC} from "../game";
+import {setHeroPlaceAC, startTimerAC} from "../game/actions";
 
 const socketMiddleware = (store) => {
 
@@ -32,6 +33,14 @@ const socketMiddleware = (store) => {
 
                 socket.on('usersInRoom', users => {
                     console.log('all users = ', users);
+                });
+
+                socket.on('myPlace', place => {
+                    store.dispatch(setHeroPlaceAC(place));
+                });
+
+                socket.on('startTimer', data => {
+                    store.dispatch(startTimerAC(data));
                 });
 
                 break;
