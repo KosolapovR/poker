@@ -20,7 +20,7 @@ class Game {
     private emptyPlaces: Array<number>;
     private placesInGame: Array<number> | undefined;
     private readonly availablePositions: Array<string>;
-    private readonly positionsInGame: Array<string>;
+    private positionsInGame: Array<string>;
     private readonly statuses: Array<string>;
     private activePlayer: Player | undefined;
     private timerId: NodeJS.Timeout | undefined;
@@ -40,18 +40,18 @@ class Game {
         this.observableCallback = callback;
     };
 
-    getFirstPlayer = () => {
+    private getFirstPlayer = () => {
         const player: Player | undefined = this.players.find(p =>
             p.getPosition() === this.positionsInGame[this.positionsInGame.length - 1]);
         return <Player>player;
     };
 
-    setActivePlayer = (player: Player) => {
+    private setActivePlayer = (player: Player) => {
         player.isActive = true;
         this.activePlayer = player;
     };
 
-    getPlayersInRound = (): Array<Player> => {
+    private getPlayersInRound = (): Array<Player> => {
         return this.players.filter(p => p.getStatus() === GAME_STATUS_IN_GAME)
     };
 
@@ -83,12 +83,14 @@ class Game {
         this.players = this.players.filter(p => p.getId() !== player.getId());
     };
 
-    getPositionsInGame = () => {
+    private getPositionsInGame = () => {
         return this.positionsInGame
     };
 
     dealCards = () => {
         if (this.players && this.players.length > 1 && this.observableCallback) {
+
+            this.refreshPlayers();
 
             this.postBlinds();
 
@@ -110,25 +112,39 @@ class Game {
         }
     };
 
+    private changePlayersPositions = () => {
+        this.players.forEach(p => {
+            let positionIndex = this.positionsInGame.indexOf(p.getPosition());
+            console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
+            if (positionIndex + 1 < this.positionsInGame.length) {
+                p.setPosition(this.positionsInGame[++positionIndex]);
+            } else {
+                p.setPosition(this.positionsInGame[0]);
+            }
+        })
+    };
 
     getCurrentHand(): Hand {
         return <Hand>this.currentHand;
     }
 
-    setCurrentHand(value: Hand) {
+    private setCurrentHand(value: Hand) {
         this.currentHand = value;
     }
 
 
-    getNextPlayer = () => {
-        const place: number | undefined = this.activePlayer?.getPlace();
+    private getNextPlayer = () => {
+        if (this.activePlayer) {
+            const place: number = this.positionsInGame.indexOf(this.activePlayer.getPosition());
 
-        if (place) {
-            return this.players.find(p => p.getPlace() === place - 1)
+            if (place) {
+                return this.players.find(p => p.getPosition() === this.positionsInGame[place - 1]);
+            }
         }
+
     };
 
-    startPlayerTimeBank = (player: Player) => {
+    private startPlayerTimeBank = (player: Player) => {
         if (this.players && this.players.length > 1) {
 
             const timeBank = player.getTimeBank();
@@ -143,7 +159,7 @@ class Game {
         }
     };
 
-    stopPlayerTimeBank = (): void => {
+    private stopPlayerTimeBank = (): void => {
         //остановка таймера
         clearTimeout(<NodeJS.Timeout>this.timerId);
 
@@ -174,7 +190,10 @@ class Game {
 
                 this.playerWinWithoutShowDown(winner);
 
+                this.changePlayersPositions();
+
                 this.dealCards();
+
             } else {
                 this.nextRound();
             }
@@ -203,7 +222,7 @@ class Game {
             const isCallSuccess = this.activePlayer.decreaseCash(callValue);
 
             if (isCallSuccess) {
-                this.activePlayer.call = callValue
+                this.activePlayer.call = callValue;
                 this.bank.addCash(callValue);
 
                 this.stopPlayerTimeBank();
@@ -226,7 +245,7 @@ class Game {
         }
     };
 
-    refreshPlayers = (): void => {
+    private refreshPlayers = (): void => {
         this.players.forEach(p => {
             p.check = false;
             p.call = null;
@@ -235,7 +254,7 @@ class Game {
         })
     };
 
-    postBlinds = () => {
+    private postBlinds = () => {
 
         const playerOnBB = this.players.find(p => p.getPosition() === 'bb');
         const playerOnSB = this.players.find(p => p.getPosition() === 'sb');
@@ -256,7 +275,7 @@ class Game {
         this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
     };
 
-    dealFlop = () => {
+    private dealFlop = () => {
         const flop = this.currentHand?.generateFlop();
 
         //установка активного игрока
@@ -270,7 +289,7 @@ class Game {
         this.startPlayerTimeBank(firstPlayer)
     };
 
-    dealTurn = () => {
+    private dealTurn = () => {
         const turn = this.currentHand?.generateTurn();
 
         //установка активного игрока
@@ -284,7 +303,7 @@ class Game {
         this.startPlayerTimeBank(firstPlayer)
     };
 
-    dealRiver = () => {
+    private dealRiver = () => {
         const river = this.currentHand?.generateRiver();
 
         //установка активного игрока
@@ -298,17 +317,17 @@ class Game {
         this.startPlayerTimeBank(firstPlayer)
     };
 
-    showdown = () => {
+    private showdown = () => {
 
     };
 
-    playerWinWithoutShowDown = (winner: Player) => {
+    private playerWinWithoutShowDown = (winner: Player) => {
         if (this.bank) {
             winner.increaseCash(this.bank.getCash());
         }
     };
 
-    nextRound = () => {
+    private nextRound = () => {
 
         this.refreshPlayers();
 
