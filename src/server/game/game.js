@@ -20,11 +20,8 @@ var Game = /** @class */ (function () {
             player.isActive = true;
             _this.activePlayer = player;
         };
-        this.getActivePlayer = function () {
-            return _this.activePlayer;
-        };
         this.getPlayersInRound = function () {
-            return _this.players.filter(function (p) { return p.getStatus() !== types_1.GAME_STATUS_IN_GAME; });
+            return _this.players.filter(function (p) { return p.getStatus() === types_1.GAME_STATUS_IN_GAME; });
         };
         this.getPlayers = function () {
             return _this.players;
@@ -51,6 +48,7 @@ var Game = /** @class */ (function () {
             return _this.positionsInGame;
         };
         this.dealCards = function () {
+            var _a;
             if (_this.players && _this.players.length > 1 && _this.observableCallback) {
                 _this.postBlinds();
                 _this.round = types_1.PREFLOP;
@@ -60,7 +58,7 @@ var Game = /** @class */ (function () {
                 //установка активного игрока
                 var firstPlayer = _this.getFirstPlayer();
                 _this.setActivePlayer(firstPlayer);
-                _this.observableCallback({ type: types_1.DEAL_HAND, data: _this.players });
+                _this.observableCallback({ type: types_1.DEAL_HAND, data: { players: _this.players, bank: (_a = _this.bank) === null || _a === void 0 ? void 0 : _a.getCash() } });
                 //запуск таймера
                 _this.startPlayerTimeBank(firstPlayer);
             }
@@ -92,11 +90,18 @@ var Game = /** @class */ (function () {
                 _this.observableCallback({ type: types_1.STOP_TIMER, data: { player: _this.activePlayer } });
             var nextPlayer = _this.getNextPlayer();
             if (nextPlayer) {
+                //фолд на ставку
+                if (_this.bank && _this.activePlayer)
+                    if (_this.bank.getBetValue()) {
+                        _this.activePlayer.fold = true;
+                        _this.activePlayer.setStatus(types_1.GAME_STATUS_WAIT);
+                    }
                 _this.setActivePlayer(nextPlayer);
                 _this.startPlayerTimeBank(nextPlayer);
             }
             else {
                 //обработка выигрыша без вскрытия
+                console.log('players in round:', _this.getPlayersInRound());
                 if (_this.getPlayersInRound().length < 2) {
                     var winner = _this.getPlayersInRound()[0];
                     _this.playerWinWithoutShowDown(winner);
@@ -161,6 +166,7 @@ var Game = /** @class */ (function () {
                 smallBlind = playerOnSB.postSmallBlind(1);
             }
             _this.bank = new Bank_1["default"](smallBlind + bigBlind);
+            console.log('post blinds: ', _this.bank.getCash());
             _this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
         };
         this.dealFlop = function () {

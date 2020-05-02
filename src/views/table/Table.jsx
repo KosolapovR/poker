@@ -22,7 +22,7 @@ const useStyles = makeStyles({
 });
 
 
-function Table({connected, connect, nextHand, realPlayers, heroPlace}) {
+function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
 
     useEffect(() => {
         connect()
@@ -200,7 +200,7 @@ function Table({connected, connect, nextHand, realPlayers, heroPlace}) {
                 <Turn card={turn}/>
                 <River card={river}/>
                 <Players players={realPlayers}/>
-                <Bank amount={321}/>
+                {bank && <Bank amount={bank}/>}
                 <button style={{marginTop: '-30px'}} onClick={() => {
                     setFold(true);
                     setZhanna([]);
@@ -228,7 +228,8 @@ function Table({connected, connect, nextHand, realPlayers, heroPlace}) {
 const mapStateToProps = state => ({
     connected: state.ws.connected,
     realPlayers: state.Game.players,
-    heroPlace: state.Game.heroPlace
+    heroPlace: state.Game.heroPlace,
+    bank: state.Game.bank,
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -51,12 +51,8 @@ class Game {
         this.activePlayer = player;
     };
 
-    getActivePlayer = () => {
-        return <Player>this.activePlayer;
-    };
-
     getPlayersInRound = (): Array<Player> => {
-        return this.players.filter(p => p.getStatus() !== GAME_STATUS_IN_GAME)
+        return this.players.filter(p => p.getStatus() === GAME_STATUS_IN_GAME)
     };
 
     getPlayers = () => {
@@ -106,7 +102,7 @@ class Game {
             //установка активного игрока
             const firstPlayer = this.getFirstPlayer();
             this.setActivePlayer(firstPlayer);
-            this.observableCallback({type: DEAL_HAND, data: this.players});
+            this.observableCallback({type: DEAL_HAND, data: {players: this.players, bank: this.bank?.getCash()}});
 
 
             //запуск таймера
@@ -153,6 +149,7 @@ class Game {
 
         this.players.forEach(p => p.isActive = false);
 
+
         //уведомление подписчика
         if (this.observableCallback)
             this.observableCallback({type: STOP_TIMER, data: {player: this.activePlayer}});
@@ -160,6 +157,14 @@ class Game {
         const nextPlayer: Player | undefined = this.getNextPlayer();
 
         if (nextPlayer) {
+            //фолд на ставку
+            if (this.bank && this.activePlayer)
+                if (this.bank.getBetValue()) {
+                    this.activePlayer.fold = true;
+                    this.activePlayer.setStatus(GAME_STATUS_WAIT);
+                }
+
+
             this.setActivePlayer(nextPlayer);
             this.startPlayerTimeBank(nextPlayer);
         } else {
@@ -247,6 +252,7 @@ class Game {
         }
 
         this.bank = new Bank(smallBlind + bigBlind);
+        console.log('post blinds: ', this.bank.getCash());
         this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
     };
 

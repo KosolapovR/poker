@@ -8,7 +8,8 @@ const reducer = (state = initialState, action) => {
             return {...state, heroPlace: action.payload}
         }
         case DEAL_HAND: {
-            return {...state, players: action.payload}
+            debugger;
+            return {...state, players: action.payload.players, bank: action.payload.bank}
         }
         case START_TIMER: {
             return {...state, players: action.payload}

@@ -89,7 +89,7 @@ function gameEventHandler(event) {
             break;
         }
         default: {
-            console.log('Поступил необрабатываемый event');
+            console.log('Поступил необрабатываемый event: ', event.type);
             break;
         }
     }

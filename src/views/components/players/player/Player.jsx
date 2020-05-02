@@ -53,6 +53,7 @@ function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, card
     const classes = useStyles(positions);
 
     if (me) {
+        debugger;
         return (
             <Grid container direction='column-reverse' className={classes.root}>
                 {bet && <Bet position={positions} value={bet}/>}
