@@ -39,7 +39,6 @@ function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
         const hero = realPlayers.find(p => p.place === heroPlace);
         hero.me = true;
         hero.showCards = true;
-        debugger;
     }
     
     const classes = useStyles();

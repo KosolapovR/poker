@@ -23,6 +23,9 @@ var Game = /** @class */ (function () {
         this.getPlayersInRound = function () {
             return _this.players.filter(function (p) { return p.getStatus() === types_1.GAME_STATUS_IN_GAME; });
         };
+        this.getPlayersInRound = function () {
+            return _this.players.filter(function (p) { return p.getStatus() !== types_1.GAME_STATUS_IN_GAME; });
+        };
         this.getPlayers = function () {
             return _this.players;
         };
@@ -101,7 +104,6 @@ var Game = /** @class */ (function () {
             }
             else {
                 //обработка выигрыша без вскрытия
-                console.log('players in round:', _this.getPlayersInRound());
                 if (_this.getPlayersInRound().length < 2) {
                     var winner = _this.getPlayersInRound()[0];
                     _this.playerWinWithoutShowDown(winner);
@@ -166,7 +168,10 @@ var Game = /** @class */ (function () {
                 smallBlind = playerOnSB.postSmallBlind(1);
             }
             _this.bank = new Bank_1["default"](smallBlind + bigBlind);
+<<<<<<< HEAD
             console.log('post blinds: ', _this.bank.getCash());
+=======
+>>>>>>> 07083d9604ade2e7edec6bec890015ed4af24555
             _this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
         };
         this.dealFlop = function () {

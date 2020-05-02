@@ -14,6 +14,9 @@ const reducer = (state = initialState, action) => {
         case START_TIMER: {
             return {...state, players: action.payload}
         }
+        case START_TIMER: {
+            return {...state, players: action.payload}
+        }
         default:
             return state;
     }
