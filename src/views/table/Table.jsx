@@ -35,12 +35,12 @@ function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
             positions: getCoordsByPlace(p.place),
             showCards: false,
         }));
-        
+
         const hero = realPlayers.find(p => p.place === heroPlace);
         hero.me = true;
         hero.showCards = true;
     }
-    
+
     const classes = useStyles();
     const [suit, setSuit] = useState('hearts');
     const [value, setValue] = useState('A');
@@ -188,6 +188,11 @@ function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
         },
     ];
 
+    const isHeroActive = () => {
+        const hero = realPlayers.find(p => p.place === heroPlace);
+        return hero.isActive;
+    };
+
     const dealNextHand = () => {
         nextHand()
     };
@@ -218,7 +223,11 @@ function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
                 }}>River
                 </button>
             </div>
-            <ActionBar className={classes.actionBar}/>
+            {
+                realPlayers &&
+                isHeroActive() &&
+                <ActionBar className={classes.actionBar}/>
+            }
         </div>
     );
 }

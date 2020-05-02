@@ -101,7 +101,7 @@ export class Player {
         this.position = newPosition;
     };
 
-    getPosition = () => {
+    getPosition = (): string => {
         return this.position;
     };
 
@@ -134,4 +134,4 @@ export class Player {
                 this.setTimebank(0);
             }, this.getTimeBank());
         };*/
-};
+}

@@ -23,9 +23,6 @@ var Game = /** @class */ (function () {
         this.getPlayersInRound = function () {
             return _this.players.filter(function (p) { return p.getStatus() === types_1.GAME_STATUS_IN_GAME; });
         };
-        this.getPlayersInRound = function () {
-            return _this.players.filter(function (p) { return p.getStatus() !== types_1.GAME_STATUS_IN_GAME; });
-        };
         this.getPlayers = function () {
             return _this.players;
         };
@@ -53,6 +50,7 @@ var Game = /** @class */ (function () {
         this.dealCards = function () {
             var _a;
             if (_this.players && _this.players.length > 1 && _this.observableCallback) {
+                _this.refreshPlayers();
                 _this.postBlinds();
                 _this.round = types_1.PREFLOP;
                 _this.players.forEach(function (p) { return p.setStatus(types_1.GAME_STATUS_IN_GAME); });
@@ -66,11 +64,24 @@ var Game = /** @class */ (function () {
                 _this.startPlayerTimeBank(firstPlayer);
             }
         };
+        this.changePlayersPositions = function () {
+            _this.players.forEach(function (p) {
+                var positionIndex = _this.positionsInGame.indexOf(p.getPosition());
+                console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', _this.positionsInGame);
+                if (positionIndex + 1 < _this.positionsInGame.length) {
+                    p.setPosition(_this.positionsInGame[++positionIndex]);
+                }
+                else {
+                    p.setPosition(_this.positionsInGame[0]);
+                }
+            });
+        };
         this.getNextPlayer = function () {
-            var _a;
-            var place = (_a = _this.activePlayer) === null || _a === void 0 ? void 0 : _a.getPlace();
-            if (place) {
-                return _this.players.find(function (p) { return p.getPlace() === place - 1; });
+            if (_this.activePlayer) {
+                var place_1 = _this.positionsInGame.indexOf(_this.activePlayer.getPosition());
+                if (place_1) {
+                    return _this.players.find(function (p) { return p.getPosition() === _this.positionsInGame[place_1 - 1]; });
+                }
             }
         };
         this.startPlayerTimeBank = function (player) {
@@ -107,6 +118,7 @@ var Game = /** @class */ (function () {
                 if (_this.getPlayersInRound().length < 2) {
                     var winner = _this.getPlayersInRound()[0];
                     _this.playerWinWithoutShowDown(winner);
+                    _this.changePlayersPositions();
                     _this.dealCards();
                 }
                 else {
@@ -168,10 +180,7 @@ var Game = /** @class */ (function () {
                 smallBlind = playerOnSB.postSmallBlind(1);
             }
             _this.bank = new Bank_1["default"](smallBlind + bigBlind);
-<<<<<<< HEAD
             console.log('post blinds: ', _this.bank.getCash());
-=======
->>>>>>> 07083d9604ade2e7edec6bec890015ed4af24555
             _this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
         };
         this.dealFlop = function () {
