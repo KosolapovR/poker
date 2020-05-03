@@ -20,10 +20,10 @@ const TimeLine = styled.div`
     width: 100%;
 `;
 
-function TimeBank(props) {
+function TimeBank({timeBank}) {
     return (
         <div className={s.root}>
-            <TimeLine duration={5000}/>
+            <TimeLine duration={timeBank}/>
         </div>
     );
 }

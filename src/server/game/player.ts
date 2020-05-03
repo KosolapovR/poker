@@ -12,10 +12,11 @@ export class Player {
     private cards: string[][];
     private countDownId: any;
     public isActive: boolean;
-    public bet: number | null;
+    public bet: number;
     public fold: boolean | null;
     public check: boolean | null;
-    public call: number | null;
+    public call: number;
+    public hasCards: boolean;
 
     constructor(name: string,
                 cash: number,
@@ -29,13 +30,14 @@ export class Player {
         this.place = place;
         this.position = position;
         this.status = status;
-        this.timeBank = 5000;
+        this.timeBank = 30000;
         this.cards = [];
         this.isActive = false;
-        this.bet = null;
+        this.bet = 0;
         this.fold = null;
         this.check = null;
-        this.call = null;
+        this.call = 0;
+        this.hasCards = true;
     }
 
     getId = () => {
@@ -51,14 +53,14 @@ export class Player {
     };
 
     increaseCash = (value: number) => {
-      this.cash += value;
+        this.cash += value;
     };
 
     decreaseCash = (value: number): boolean => {
-        if(this.cash >= value){
+        if (this.cash >= value) {
             this.cash -= value;
             return true;
-        }else{
+        } else {
             return false;
         }
     };
@@ -69,6 +71,7 @@ export class Player {
 
     postBigBlind = (value: number) => {
         if (this.getCash() >= value) {
+            this.bet = value;
             this.setCash(this.getCash() - value);
             return value;
         } else {
@@ -80,6 +83,7 @@ export class Player {
 
     postSmallBlind = (value: number): number => {
         if (this.getCash() >= value) {
+            this.bet = value;
             this.setCash(this.getCash() - value);
             return value;
         } else {

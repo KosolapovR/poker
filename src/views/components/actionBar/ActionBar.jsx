@@ -4,6 +4,9 @@ import {Button} from "@material-ui/core";
 import Slider from "@material-ui/core/Slider";
 import {makeStyles} from "@material-ui/styles";
 import Input from "@material-ui/core/Input";
+import {connect} from "react-redux";
+import {wsConnectAC} from "../../../state/ws";
+import {wsBetAC, wsCallAC, wsCheckAC, wsFoldAC, wsNextHandAC} from "../../../state/ws/actions";
 
 const useStyles = makeStyles({
     root: {
@@ -18,7 +21,7 @@ const useStyles = makeStyles({
     },
 });
 
-function ActionBar() {
+function ActionBar({toCall, player, fold, check, call, bet}) {
 
     const classes = useStyles();
     const [value, setValue] = React.useState(30);
@@ -39,6 +42,22 @@ function ActionBar() {
         }
     };
 
+    const handleFold = () => {
+        fold();
+    };
+
+    const handleCheck = () => {
+        check();
+    };
+
+    const handleCall = () => {
+        call();
+    };
+
+    const handleBet = (value) => {
+        bet(value);
+    };
+    console.log('toCall - player.bet', toCall, player.bet);
     return (
         <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
@@ -68,20 +87,85 @@ function ActionBar() {
             </Grid>
             <Grid container justify='space-between'>
                 <Grid item>
-                    <Button variant='contained' color='secondary' size='small'>FOLD</Button>
+                    <Button
+                        variant='contained'
+                        color='secondary'
+                        size='small'
+                        onClick={handleFold}
+                    >
+                        FOLD
+                    </Button>
                 </Grid>
                 <Grid item>
-                    <Button variant='contained' color='secondary' size='small'>CHECK</Button>
+                    {toCall - player.bet ?
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            size='small'
+                            disabled
+                        >
+                            CHECK
+                        </Button> :
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            size='small'
+                            onClick={handleCheck}
+                        >
+                            CHECK
+                        </Button>}
+
                 </Grid>
+
                 <Grid item>
-                    <Button variant='contained' color='secondary' size='small'>CALL</Button>
+                    {toCall && toCall - player.bet > 0 ?
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            size='small'
+                            onClick={handleCall}
+                        >
+                            CALL {toCall - player.bet}
+                        </Button> :
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            size='small'
+                            onClick={handleCall}
+                            disabled
+                        >
+                            CALL
+                        </Button>}
                 </Grid>
+                {player.cash > toCall &&
                 <Grid item>
-                    <Button variant='contained' color='secondary' size='small'>BET</Button>
-                </Grid>
+                    <Button
+                        variant='contained'
+                        color='secondary'
+                        size='small'
+                        onClick={handleBet}
+                    >
+                        BET
+                    </Button>
+                </Grid>}
             </Grid>
         </div>
     );
 }
 
-export default ActionBar;
+const mapDispatchToProps = dispatch => ({
+    fold: () => {
+        dispatch(wsFoldAC())
+    },
+    check: () => {
+        dispatch(wsCheckAC())
+    },
+    call: () => {
+        dispatch(wsCallAC())
+    },
+    bet: () => {
+        dispatch(wsBetAC())
+    },
+});
+
+export default connect(null, mapDispatchToProps)(ActionBar);

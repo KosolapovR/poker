@@ -48,12 +48,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, cards, position, positions, img, cash, bet, me, showCards, ...props}) {
+function Player({name, status, dealer, bigBlind, timeBank, smallBlind, fold, isActive, hasCards, cards, position, positions, img, cash, bet, me, showCards}) {
 
     const classes = useStyles(positions);
 
     if (me) {
-        debugger;
         return (
             <Grid container direction='column-reverse' className={classes.root}>
                 {bet && <Bet position={positions} value={bet}/>}
@@ -61,7 +60,7 @@ function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, card
                 {dealer && <Button position={positions.button} type='dealer'/>}
                 {bigBlind && <Button position={positions.button} type='bigBlind'/>}
                 {smallBlind && <Button position={positions.button} type='smallBlind'/>}
-                {cards.length > 0 &&
+                {cards.length > 0 && hasCards &&
                 <div className={classes.pocketPair}>
                     <div className={classes.leftCard}>
                         <Card value={cards[0]}/>
@@ -75,7 +74,7 @@ function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, card
                         {/*<Avatar src={img.Avatar} alt='avatar'/>*/}
                     </Grid>
                     <Grid xs={8} item container direction='column' justify='center' alignItems='center'>
-                        <Grid item>{position}</Grid>
+                        <Grid item>{status}</Grid>
                         <Grid item>{cash}</Grid>
                     </Grid>
                 </Grid>
@@ -106,11 +105,11 @@ function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, card
                         <Avatar alt='avatar'/>
                     </Grid>
                     <Grid xs={8} item container direction='column' justify='center' alignItems='center'>
-                        <Grid item>{position}</Grid>
+                        <Grid item>{status}</Grid>
                         <Grid item>{cash}</Grid>
                     </Grid>
                 </Grid>
-                {isActive && <TimeBank/>}
+                {isActive && <TimeBank timeBank={timeBank}/>}
             </Grid>
         );
     }

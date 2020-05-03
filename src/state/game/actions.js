@@ -1,4 +1,4 @@
-import {DEAL_HAND, SET_HERO_PLACE, START_TIMER} from "./types";
+import {DEAL_FLOP, DEAL_HAND, DEAL_RIVER, DEAL_TURN, SET_HERO_PLACE, START_TIMER} from "./types";
 
 
 const setHeroPlaceAC = payload => ({
@@ -11,6 +11,21 @@ const dealHandAC = payload => ({
    payload
 });
 
+const dealFlopAC = payload => ({
+    type: DEAL_FLOP,
+    payload
+});
+
+const dealTurnAC = payload => ({
+    type: DEAL_TURN,
+    payload
+});
+
+const dealRiverAC = payload => ({
+    type: DEAL_RIVER,
+    payload
+});
+
 const startTimerAC = payload => ({
     type: START_TIMER,
     payload
@@ -19,5 +34,8 @@ const startTimerAC = payload => ({
 export {
     dealHandAC,
     setHeroPlaceAC,
-    startTimerAC
+    startTimerAC,
+    dealFlopAC,
+    dealTurnAC,
+    dealRiverAC
 }
