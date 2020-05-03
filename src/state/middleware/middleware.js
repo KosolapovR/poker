@@ -1,7 +1,7 @@
-import {WS_CONNECTED, WS_NEXT_HAND} from "../ws/types";
+import {WS_CONNECTED, WS_HERO_BET, WS_HERO_CALL, WS_HERO_CHECK, WS_HERO_FOLD, WS_NEXT_HAND} from "../ws/types";
 import openSocket from "socket.io-client";
 import {dealHandAC} from "../game";
-import {setHeroPlaceAC, startTimerAC} from "../game/actions";
+import {dealFlopAC, dealRiverAC, dealTurnAC, setHeroPlaceAC, startTimerAC} from "../game/actions";
 
 const socketMiddleware = (store) => {
 
@@ -42,6 +42,18 @@ const socketMiddleware = (store) => {
                     store.dispatch(startTimerAC(data));
                 });
 
+                socket.on('dealFlop', data => {
+                    store.dispatch(dealFlopAC(data));
+                });
+
+                socket.on('dealTurn', data => {
+                    store.dispatch(dealTurnAC(data));
+                });
+
+                socket.on('dealRiver', data => {
+                    store.dispatch(dealRiverAC(data));
+                });
+
                 break;
             }
             case 'WS_DISCONNECT':
@@ -55,6 +67,22 @@ const socketMiddleware = (store) => {
                 socket.emit('nextHand');
 
                 break;
+            case WS_HERO_CHECK: {
+                socket.emit('heroCheck');
+                break;
+            }
+            case WS_HERO_CALL: {
+                socket.emit('heroCall');
+                break;
+            }
+            case WS_HERO_FOLD: {
+                socket.emit('heroFold');
+                break;
+            }
+            case WS_HERO_BET: {
+                socket.emit('heroBet', action.payload);
+                break;
+            }
             default: {
                 console.log('the next action:', action);
                 return next(action);

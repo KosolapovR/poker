@@ -56,7 +56,7 @@ function Bank({amount}) {
             {chipsStack.map((c, i) => <div key={i} className={`${classes.chip}`}>
                 <SpriteMap sprite={{type: 'chips', value: c}}/>
             </div>)}
-            <span className={classes.bankValue}>{amount}</span>
+            <span className={classes.bankValue}>{amount ? amount : null}</span>
         </div>
     );
 }

@@ -48,12 +48,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, cards, position, positions, img, cash, bet, me, showCards, ...props}) {
+function Player({name, order, dealer, toCall, bigBlind, timeBank, smallBlind, fold, isActive, cards, position, positions, img, cash, bet, me, showCards}) {
 
     const classes = useStyles(positions);
 
     if (me) {
-        debugger;
         return (
             <Grid container direction='column-reverse' className={classes.root}>
                 {bet && <Bet position={positions} value={bet}/>}
@@ -110,7 +109,7 @@ function Player({name, order, dealer, bigBlind, smallBlind, fold, isActive, card
                         <Grid item>{cash}</Grid>
                     </Grid>
                 </Grid>
-                {isActive && <TimeBank/>}
+                {isActive && <TimeBank timeBank={timeBank}/>}
             </Grid>
         );
     }

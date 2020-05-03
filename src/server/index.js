@@ -46,26 +46,25 @@ io.on('connection', function (socket) {
         game.dealCards();
     });
 
-    socket.on('bet', (value) => {
-        game.playerBet(socket.player, 30);
+    socket.on('heroBet', (value) => {
+        game.playerBet(value);
     });
 
-    socket.on('call', () => {
-        game.playerCall(socket.player);
+    socket.on('heroCall', () => {
+        game.playerCall();
     });
 
-    socket.on('check', () => {
-        game.playerCheck(socket.player);
+    socket.on('heroCheck', () => {
+        game.playerCheck();
     });
 
-    socket.on('fold', () => {
-        game.playerFold(socket.player);
+    socket.on('heroFold', () => {
+        game.playerFold();
     });
 
     socket.on('disconnect', () => {
         if (socket.player)
             game.removePlayer(socket.player);
-        console.log('tablePositions', game.getPositionsInGame());
         if (io.sockets.adapter.rooms['PokerRoom'])
             emitAllUsersInRoom('PokerRoom');
     })
@@ -86,6 +85,16 @@ function gameEventHandler(event) {
         case types.STOP_TIMER: {
             console.log('Конец таймера');
             io.sockets.emit('stopTimer', event.data);
+            break;
+        }
+        case types.FLOP: {
+            console.log('Раздача Флопа');
+            io.sockets.emit('dealFlop', event.data);
+            break;
+        }
+        case types.TURN: {
+            console.log('Раздача Терна');
+            io.sockets.emit('dealTurn', event.data);
             break;
         }
         default: {

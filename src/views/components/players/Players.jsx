@@ -5,7 +5,7 @@ function Players({players}) {
     let renderedPlayers;
     if (players) {
         renderedPlayers = players.map(
-            (p, i) => p.me ?
+            (p, i) =>
                 <Player
                     key={i}
                     cards={p.cards}
@@ -17,33 +17,16 @@ function Players({players}) {
                     order={p.order}
                     /*img={p.img}*/
                     cash={p.cash}
-                    me={true}
-                    /*bet={p.bet}*/
+                    me = {p.me ? true : null}
+                    bet={p.bet || p.call || false}
                     showCards={p.showCards}
                     fold={p.fold}
                     dealer={p.dealer}
                     bigBlind={p.bigBlind}
                     smallBlind={p.smallBlind}
-                    isActive = {p.isActive}
-                /> :
-                <Player
-                    key={i}
-                    cards={p.cards}
-                    position={p.position}
-                    positions={p.positions}
-                    name={p.name}
-                    status={p.status}
-                    hasCards={true}
-                    order={p.order}
-                    //img={p.img}
-                    cash={p.cash}
-                    //bet={p.bet}
-                    showCards={p.showCards}
-                    fold={p.fold}
-                    dealer={p.dealer}
-                    bigBlind={p.bigBlind}
-                    smallBlind={p.smallBlind}
-                    isActive = {p.isActive}
+                    isActive={p.isActive}
+                    toCall={p.toCall}
+                    timeBank = {p.timeBank}
                 />);
 
     }

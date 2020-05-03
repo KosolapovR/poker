@@ -22,11 +22,13 @@ const useStyles = makeStyles({
 });
 
 
-function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
+function Table({connected, bank, betValue, flop, turn, river, connect, nextHand, realPlayers, heroPlace}) {
 
     useEffect(() => {
         connect()
     }, []);
+
+    const [hero, setHero] = useState({});
 
     if (realPlayers) {
         realPlayers = realPlayers.map(p => ({
@@ -34,159 +36,17 @@ function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
             order: p.place,
             positions: getCoordsByPlace(p.place),
             showCards: false,
+            toCall: betValue
         }));
 
-        const hero = realPlayers.find(p => p.place === heroPlace);
+        if (hero.place !== heroPlace)
+            setHero(realPlayers.find(p => p.place === heroPlace));
+
         hero.me = true;
         hero.showCards = true;
     }
 
     const classes = useStyles();
-    const [suit, setSuit] = useState('hearts');
-    const [value, setValue] = useState('A');
-    const [flop, setFlop] = useState(null);
-    const [fold, setFold] = useState(false);
-    const [Zhanna, setZhanna] = useState([
-        {
-            value: 'Ah'
-        },
-        {
-            value: '2h'
-        }
-    ]);
-    const [turn, setTurn] = useState(null);
-
-    const [river, setRiver] = useState(null);
-
-    useEffect(() => {
-        setTimeout(() => {
-            setFlop([
-                {value: 'Ac'},
-                {value: 'Ad'},
-                {value: '4s'}
-            ]);
-        }, 2000);
-    }, []);
-
-    const [showCards, setShowCards] = useState(false);
-
-
-    const players = [
-        {
-            name: 'Рома',
-            cash: 200,
-            img: {Avatar},
-            status: 'inGame',
-            position: {
-                top: 300,
-                left: 500,
-                chips: {top: -40, left: 25},
-                fold: {top: -20, left: 95},
-                button: {top: -10, left: 5}
-            },
-            order: 1,
-            bet: 2,
-            fold: true,
-            dealer: true,
-            cards: [
-                {
-                    value: 'Ah'
-                },
-                {
-                    value: '2h',
-                }
-            ]
-        },
-        {
-            name: 'Жанна',
-            cash: 200,
-            img: {Avatar},
-            status: 'inGame',
-            position: {
-                top: 300,
-                left: 100,
-                chips: {top: -40, left: 155},
-                fold: {top: -20, left: 125},
-                button: {top: -10, left: 45}
-            },
-            bet: 43,
-            order: 2,
-            fold: fold,
-            dealer: true,
-            me: true,
-            smallBlind: true,
-            cards: Zhanna
-        },
-        {
-            name: 'Никита',
-            cash: 200,
-            img: {Avatar},
-            status: 'inGame',
-            position: {
-                top: 120,
-                left: -150,
-                chips: {top: 50, left: 255},
-                fold: {top: 10, left: 195},
-                button: {top: 60, left: 210}
-            },
-            order: 3,
-            bet: 3,
-            showCards: showCards,
-            dealer: true,
-            fold: true,
-            bigBlind: true,
-            cards: []
-        },
-        {
-            name: 'Даша',
-            cash: 200, img: {Avatar},
-            status: 'sitOut',
-            position: {
-                top: -80,
-                left: 100,
-                chips: {top: 130, left: 95},
-                fold: {top: 110, left: 55},
-                button: {top: 110, left: 150}
-            },
-            bet: 45, order: 4,
-            bigBlind: true,
-            fold: true,
-            cards: []
-        },
-        {
-            name: 'Петя',
-            cash: 200,
-            img: {Avatar},
-            status: 'wait',
-            position: {
-                top: -80,
-                left: 500,
-                chips: {top: 130, left: 55},
-                fold: {top: 110, left: 25},
-                button: {top: 110, left: -10}
-            },
-            bet: 145,
-            order: 5,
-            bigBlind: true,
-            fold: true,
-            cards: []
-        },
-        {
-            name: 'Вася', cash: 200, img: {Avatar}, status: 'inGame',
-            position: {
-                top: 120,
-                left: 700,
-                chips: {top: 50, left: -125},
-                fold: {top: 20, left: -45},
-                button: {top: 70, left: -40}
-            },
-            bet: 200,
-            order: 6,
-            fold: true,
-            bigBlind: true,
-            cards: []
-        },
-    ];
 
     const isHeroActive = () => {
         const hero = realPlayers.find(p => p.place === heroPlace);
@@ -200,33 +60,22 @@ function Table({connected, bank, connect, nextHand, realPlayers, heroPlace}) {
     return (
         <div style={{backgroundImage: `url(${PokerTable})`, position: "relative", width: '756px', height: '359px'}}>
             <div style={{width: "min-content", margin: '80px auto', display: 'flex'}}>
-                <Flop cards={flop}/>
-                <Turn card={turn}/>
-                <River card={river}/>
+                {flop && <Flop cards={flop}/>}
+                {turn && <Turn card={turn}/>}
+                {river && <River card={river}/>}
                 <Players players={realPlayers}/>
                 {bank && <Bank amount={bank}/>}
-                <button style={{marginTop: '-30px'}} onClick={() => {
-                    setFold(true);
-                    setZhanna([]);
-                }}>Fold
-                </button>
-                <button style={{marginTop: '-30px'}} onClick={() => {
-                    setTurn({value: 'Jc'})
-                }}>Turn
-                </button>
-                <button style={{marginTop: '-30px'}} onClick={() => {
-                    setRiver({value: 'Jd'})
-                }}>River
-                </button>
+
                 <button style={{marginTop: '-30px'}} onClick={() => {
                     dealNextHand()
-                }}>River
+                }}>deal hand
                 </button>
+
             </div>
             {
                 realPlayers &&
                 isHeroActive() &&
-                <ActionBar className={classes.actionBar}/>
+                <ActionBar player={hero} toCall={betValue} className={classes.actionBar}/>
             }
         </div>
     );
@@ -238,6 +87,10 @@ const mapStateToProps = state => ({
     realPlayers: state.Game.players,
     heroPlace: state.Game.heroPlace,
     bank: state.Game.bank,
+    betValue: state.Game.betValue,
+    flop: state.Game.flop,
+    turn: state.Game.turn,
+    river: state.Game.river,
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -5,7 +5,7 @@ import Card from "../card";
 function River({card}) {
     if (card) {
         return <div className={s.root}>
-            <Card value={card.value}/>
+            <Card value={card}/>
         </div>
     } else {
         return <></>;

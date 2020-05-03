@@ -2,8 +2,8 @@ class Bank {
     private cash: number;
     private betValue: number;
 
-    constructor(value: number) {
-        this.cash = value;
+    constructor() {
+        this.cash = 0;
         this.betValue = 0;
     }
 
@@ -12,7 +12,7 @@ class Bank {
     };
 
     public addCash = (cash: number) => {
-      this.cash += cash;
+        this.cash = this.cash ? this.cash += cash : cash;
     };
 
     public getBetValue = (): number => {

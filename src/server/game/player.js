@@ -30,6 +30,7 @@ var Player = /** @class */ (function () {
         };
         this.postBigBlind = function (value) {
             if (_this.getCash() >= value) {
+                _this.bet = value;
                 _this.setCash(_this.getCash() - value);
                 return value;
             }
@@ -41,6 +42,7 @@ var Player = /** @class */ (function () {
         };
         this.postSmallBlind = function (value) {
             if (_this.getCash() >= value) {
+                _this.bet = value;
                 _this.setCash(_this.getCash() - value);
                 return value;
             }
@@ -86,15 +88,14 @@ var Player = /** @class */ (function () {
         this.place = place;
         this.position = position;
         this.status = status;
-        this.timeBank = 5000;
+        this.timeBank = 30000;
         this.cards = [];
         this.isActive = false;
-        this.bet = null;
+        this.bet = 0;
         this.fold = null;
         this.check = null;
-        this.call = null;
+        this.call = 0;
     }
     return Player;
 }());
 exports.Player = Player;
-;
