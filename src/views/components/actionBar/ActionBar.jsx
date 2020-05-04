@@ -57,7 +57,7 @@ function ActionBar({toCall, player, fold, check, call, bet}) {
     const handleBet = (value) => {
         bet(value);
     };
-    console.log('toCall - player.bet', toCall, player.bet);
+
     return (
         <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">

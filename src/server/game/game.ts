@@ -169,7 +169,6 @@ class Game {
 
         this.players.forEach(p => p.isActive = false);
 
-
         let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
 
         console.log(nextPlayer?.getStatus());

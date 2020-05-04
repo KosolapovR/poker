@@ -19,7 +19,6 @@ const reducer = (state = initialState, action) => {
             }
         }
         case DEAL_FLOP: {
-            debugger;
             return {
                 ...state,
                 players: action.payload.players,
@@ -47,6 +46,7 @@ const reducer = (state = initialState, action) => {
             }
         }
         case START_TIMER: {
+            debugger;
             return {...state, players: action.payload}
         }
         default:
