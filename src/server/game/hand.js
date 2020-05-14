@@ -7,8 +7,10 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     return r;
 };
 exports.__esModule = true;
-var Hand = /** @class */ (function () {
-    function Hand(players) {
+var Hand = require('pokersolver').Hand;
+var isEqual = require('lodash.isequal');
+var CurrentHand = /** @class */ (function () {
+    function CurrentHand(players) {
         var _this = this;
         this.dealCards = function (players) {
             players.forEach(function (p) {
@@ -37,6 +39,24 @@ var Hand = /** @class */ (function () {
         this.getTurn = function () {
             return _this.turn;
         };
+        this.getWinners = function (players) {
+            var playersHands = [];
+            players.forEach(function (p) {
+                p.showdownHand = Hand.solve(__spreadArrays(_this.flop, [_this.turn, _this.river], p.getCards()[0], p.getCards()[1]));
+                if (p.showdownHand)
+                    playersHands.push(p.showdownHand);
+            });
+            var winners = Hand.winners(playersHands); // hand2
+            console.log("===============  WINNER  ==============");
+            winners.forEach(function (w) {
+                players.forEach(function (p) {
+                    if (isEqual(p.showdownHand, w)) {
+                        console.log("Player on position: ", p.getPosition());
+                    }
+                });
+            });
+            return players;
+        };
         this.getRiver = function () {
             return _this.river;
         };
@@ -49,6 +69,6 @@ var Hand = /** @class */ (function () {
         this.currentDeck = __spreadArrays(this.deck);
         this.dealCards(players);
     }
-    return Hand;
+    return CurrentHand;
 }());
-exports.Hand = Hand;
+exports.CurrentHand = CurrentHand;

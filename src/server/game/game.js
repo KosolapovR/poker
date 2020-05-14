@@ -52,7 +52,7 @@ var Game = /** @class */ (function () {
                 _this.postBlinds();
                 _this.round = types_1.PREFLOP;
                 //раздача карт
-                _this.setCurrentHand(new hand_1.Hand(_this.players));
+                _this.setCurrentHand(new hand_1.CurrentHand(_this.players));
                 //установка активного игрока
                 var firstPlayer = _this.getFirstPlayer();
                 _this.setActivePlayer(firstPlayer);
@@ -62,13 +62,6 @@ var Game = /** @class */ (function () {
                 });
                 //запуск таймера
                 _this.startPlayerTimeBank(firstPlayer);
-                _this.players.forEach(function (p) {
-                    console.log("place: ", p.getPlace());
-                    console.log("position: ", p.getPosition());
-                    console.log("call: ", p.call);
-                    console.log("bet: ", p.bet);
-                    console.log("cash: ", p.getCash());
-                });
             }
         };
         this.changePlayersPositions = function () {
@@ -125,13 +118,6 @@ var Game = /** @class */ (function () {
                 _this.playerWinWithoutShowDown(_this.getPlayersInRound()[0]);
                 _this.changePlayersPositions();
                 _this.dealCards();
-                _this.players.forEach(function (p) {
-                    console.log("place: ", p.getPlace());
-                    console.log("position: ", p.getPosition());
-                    console.log("call: ", p.call);
-                    console.log("bet: ", p.bet);
-                    console.log("cash: ", p.getCash());
-                });
             }
             else {
                 var nextPlayer = _this.getNextPlayer(_this.activePlayer);
@@ -248,17 +234,20 @@ var Game = /** @class */ (function () {
             _this.startPlayerTimeBank(firstPlayer);
         };
         this.dealRiver = function () {
-            var _a;
+            var _a, _b;
             var river = (_a = _this.currentHand) === null || _a === void 0 ? void 0 : _a.generateRiver();
             //установка активного игрока
             var firstPlayer = _this.getFirstPlayer();
             _this.setActivePlayer(firstPlayer);
             if (_this.observableCallback)
-                _this.observableCallback({ type: types_1.RIVER, data: river });
+                _this.observableCallback({ type: types_1.RIVER, data: { river: river, bank: (_b = _this.bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
             //запуск таймера
             _this.startPlayerTimeBank(firstPlayer);
         };
         this.showdown = function () {
+            var _a;
+            console.log('Вскрытие');
+            (_a = _this.currentHand) === null || _a === void 0 ? void 0 : _a.getWinners(_this.getPlayersInRound());
         };
         this.playerWinWithoutShowDown = function (winner) {
             var _a;
@@ -300,6 +289,7 @@ var Game = /** @class */ (function () {
                     break;
                 }
                 case types_1.RIVER: {
+                    _this.round = types_1.SHOWDOWN;
                     _this.showdown();
                     break;
                 }

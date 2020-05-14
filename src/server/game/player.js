@@ -73,7 +73,7 @@ var Player = /** @class */ (function () {
         this.setCards = function (cards) {
             _this.cards = cards;
         };
-        this.getCards = function (strings) {
+        this.getCards = function () {
             return _this.cards;
         };
         this.setTimeBank = function (timeBank) {

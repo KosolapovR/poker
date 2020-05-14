@@ -17,6 +17,7 @@ export class Player {
     public check: boolean | null;
     public call: number;
     public hasCards: boolean;
+    public showdownHand: object | undefined;
 
     constructor(name: string,
                 cash: number,
@@ -121,7 +122,7 @@ export class Player {
         this.cards = cards;
     };
 
-    getCards = (strings: string[][]) => {
+    getCards = () => {
         return this.cards;
     };
 

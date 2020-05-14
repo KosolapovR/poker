@@ -37,6 +37,7 @@ const reducer = (state = initialState, action) => {
             }
         }
         case DEAL_RIVER: {
+            debugger;
             return {
                 ...state,
                 players: action.payload.players,

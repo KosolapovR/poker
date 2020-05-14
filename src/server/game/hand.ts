@@ -1,6 +1,10 @@
 import {Player} from "./player";
+import {GAME_STATUS_IN_GAME} from "./types";
 
-export class Hand {
+var Hand = require('pokersolver').Hand;
+var isEqual = require('lodash.isequal');
+
+export class CurrentHand {
     private readonly deck: Array<string>;
     private currentDeck: Array<string>;
     private flop: Array<string> | undefined;
@@ -55,6 +59,31 @@ export class Hand {
 
     public getTurn = (): string | undefined => {
         return this.turn;
+    };
+
+    public getWinners = (players: Player[]): Player[] => {
+
+        let playersHands: object[] = [];
+
+        players.forEach(p => {
+            p.showdownHand = Hand.solve([...this.flop, this.turn, this.river, ...p.getCards()[0], ...p.getCards()[1]]);
+            if (p.showdownHand)
+                playersHands.push(p.showdownHand);
+        });
+
+
+        let winners: object[] = Hand.winners(playersHands); // hand2
+        console.log("===============  WINNER  ==============");
+
+        winners.forEach(w => {
+            players.forEach(p => {
+                if(isEqual(p.showdownHand, w)){
+                    console.log("Player on position: ", p.getPosition())
+                }
+            })
+        });
+
+        return players;
     };
 
     public getRiver = (): string | undefined => {

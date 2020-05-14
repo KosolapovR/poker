@@ -1,5 +1,5 @@
 import {Player} from "./player";
-import {Hand} from "./hand";
+import {CurrentHand} from "./hand";
 import {
     DEAL_HAND,
     FLOP,
@@ -15,7 +15,7 @@ import Bank from "./Bank";
 
 class Game {
     private players: Array<Player>;
-    private currentHand: Hand | undefined;
+    private currentHand: CurrentHand | undefined;
     private emptyPlaces: Array<number>;
     private placesInGame: Array<number> | undefined;
     private readonly availablePositions: Array<string>;
@@ -92,7 +92,7 @@ class Game {
             this.round = PREFLOP;
 
             //раздача карт
-            this.setCurrentHand(new Hand(this.players));
+            this.setCurrentHand(new CurrentHand(this.players));
 
             //установка активного игрока
             const firstPlayer = this.getFirstPlayer();
@@ -121,7 +121,7 @@ class Game {
         })
     };
 
-    private setCurrentHand(value: Hand) {
+    private setCurrentHand(value: CurrentHand) {
         this.currentHand = value;
     }
 
@@ -325,13 +325,15 @@ class Game {
         this.setActivePlayer(firstPlayer);
 
         if (this.observableCallback)
-            this.observableCallback({type: RIVER, data: river});
+            this.observableCallback({type: RIVER,  data: {river, bank: this.bank?.getCash()}});
 
         //запуск таймера
         this.startPlayerTimeBank(firstPlayer)
     };
 
     private showdown = () => {
+        console.log('Вскрытие');
+        this.currentHand?.getWinners(this.getPlayersInRound());
 
     };
 
@@ -384,6 +386,7 @@ class Game {
                 break;
             }
             case RIVER: {
+                this.round = SHOWDOWN;
                 this.showdown();
                 break;
             }

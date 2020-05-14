@@ -1,8 +1,6 @@
 var app = require('express')();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
-var Hand = require('pokersolver').Hand;
-var isEqual = require('lodash.isequal');
 var Game = require('./game/game');
 var types = require('./game/types');
 
@@ -94,6 +92,11 @@ function gameEventHandler(event) {
         case types.TURN: {
             console.log('Раздача Терна');
             io.sockets.emit('dealTurn', event.data);
+            break;
+        }
+        case types.RIVER: {
+            console.log('Раздача Ривера');
+            io.sockets.emit('dealRiver', event.data);
             break;
         }
         default: {
