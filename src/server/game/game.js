@@ -62,12 +62,19 @@ var Game = /** @class */ (function () {
                 });
                 //запуск таймера
                 _this.startPlayerTimeBank(firstPlayer);
+                _this.players.forEach(function (p) {
+                    console.log("place: ", p.getPlace());
+                    console.log("position: ", p.getPosition());
+                    console.log("call: ", p.call);
+                    console.log("bet: ", p.bet);
+                    console.log("cash: ", p.getCash());
+                });
             }
         };
         this.changePlayersPositions = function () {
             _this.players.forEach(function (p) {
                 var positionIndex = _this.positionsInGame.indexOf(p.getPosition());
-                console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', _this.positionsInGame);
+                // console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
                 if (positionIndex + 1 < _this.positionsInGame.length) {
                     p.setPosition(_this.positionsInGame[++positionIndex]);
                 }
@@ -118,6 +125,13 @@ var Game = /** @class */ (function () {
                 _this.playerWinWithoutShowDown(_this.getPlayersInRound()[0]);
                 _this.changePlayersPositions();
                 _this.dealCards();
+                _this.players.forEach(function (p) {
+                    console.log("place: ", p.getPlace());
+                    console.log("position: ", p.getPosition());
+                    console.log("call: ", p.call);
+                    console.log("bet: ", p.bet);
+                    console.log("cash: ", p.getCash());
+                });
             }
             else {
                 var nextPlayer = _this.getNextPlayer(_this.activePlayer);
@@ -174,14 +188,11 @@ var Game = /** @class */ (function () {
             }
         };
         this.playerFold = function () {
-            var _a, _b;
-            console.log("247, player fold, status before: ", (_a = _this.activePlayer) === null || _a === void 0 ? void 0 : _a.getStatus());
             if (_this.activePlayer) {
                 _this.activePlayer.fold = true;
                 _this.activePlayer.setStatus(types_1.GAME_STATUS_WAIT);
                 _this.stopPlayerTimeBank();
             }
-            console.log("253, player fold, status after: ", (_b = _this.activePlayer) === null || _b === void 0 ? void 0 : _b.getStatus());
         };
         this.playerCheck = function () {
             if (_this.activePlayer) {

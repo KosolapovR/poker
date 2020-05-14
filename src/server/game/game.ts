@@ -104,14 +104,22 @@ class Game {
 
 
             //запуск таймера
-            this.startPlayerTimeBank(firstPlayer)
+            this.startPlayerTimeBank(firstPlayer);
+
+            this.players.forEach(p => {
+                console.log("place: ", p.getPlace());
+                console.log("position: ", p.getPosition());
+                console.log("call: ", p.call);
+                console.log("bet: ", p.bet);
+                console.log("cash: ", p.getCash())
+            })
         }
     };
 
     private changePlayersPositions = () => {
         this.players.forEach(p => {
             let positionIndex = this.positionsInGame.indexOf(p.getPosition());
-            console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
+            // console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
             if (positionIndex + 1 < this.positionsInGame.length) {
                 p.setPosition(this.positionsInGame[++positionIndex]);
             } else {
@@ -176,6 +184,13 @@ class Game {
             this.changePlayersPositions();
 
             this.dealCards();
+            this.players.forEach(p => {
+                console.log("place: ", p.getPlace());
+                console.log("position: ", p.getPosition());
+                console.log("call: ", p.call);
+                console.log("bet: ", p.bet);
+                console.log("cash: ", p.getCash())
+            })
         } else {
             let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
             if (nextPlayer)
@@ -240,14 +255,11 @@ class Game {
     };
 
     playerFold = () => {
-        console.log("247, player fold, status before: ", this.activePlayer?.getStatus());
         if (this.activePlayer) {
             this.activePlayer.fold = true;
             this.activePlayer.setStatus(GAME_STATUS_WAIT);
             this.stopPlayerTimeBank();
         }
-        console.log("253, player fold, status after: ", this.activePlayer?.getStatus());
-
     };
 
     playerCheck = () => {
