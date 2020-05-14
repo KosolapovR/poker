@@ -124,7 +124,6 @@ class Game {
         this.currentHand = value;
     }
 
-
     private getNextPlayer = (currentPlayer: Player | undefined): Player | undefined => {
         if (currentPlayer) {
             const place: number = this.positionsInGame.indexOf(currentPlayer.getPosition());
@@ -169,39 +168,35 @@ class Game {
 
         this.players.forEach(p => p.isActive = false);
 
-        let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
+        //обработка выигрыша без вскрытия
+        if (this.getPlayersInRound().length < 2) {
 
-        console.log(nextPlayer?.getStatus());
+            this.playerWinWithoutShowDown(this.getPlayersInRound()[0]);
 
-        if (nextPlayer)
-            while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
-                nextPlayer = this.getNextPlayer(nextPlayer);
-                console.log(nextPlayer?.getStatus());
-            }
+            this.changePlayersPositions();
 
-        if (nextPlayer) {
-            //фолд на ставку
-            if (this.bank && this.activePlayer && !this.activePlayer.call)
-                if (this.bank.getBetValue()) {
-                    this.activePlayer.fold = true;
-                    this.activePlayer.setStatus(GAME_STATUS_WAIT);
-                } else {
-                    this.activePlayer.check = true;
+            this.dealCards();
+        } else {
+            let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
+            if (nextPlayer)
+                while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
+                    nextPlayer = this.getNextPlayer(nextPlayer);
+                    console.log("статус следующего игрока = ", nextPlayer?.getStatus());
                 }
 
+            if (nextPlayer) {
+                //фолд на ставку
+                if (this.bank && this.activePlayer && !this.activePlayer.call)
+                    if (this.bank.getBetValue()) {
+                        this.activePlayer.fold = true;
+                        this.activePlayer.setStatus(GAME_STATUS_WAIT);
+                    } else {
+                        this.activePlayer.check = true;
+                    }
 
-            this.setActivePlayer(nextPlayer);
-            this.startPlayerTimeBank(nextPlayer);
-        } else {
-            //обработка выигрыша без вскрытия
-            if (this.getPlayersInRound().length < 2) {
 
-                this.playerWinWithoutShowDown(this.activePlayer);
-
-                this.changePlayersPositions();
-
-                this.dealCards();
-
+                this.setActivePlayer(nextPlayer);
+                this.startPlayerTimeBank(nextPlayer);
             } else {
                 this.nextRound();
             }
@@ -245,11 +240,14 @@ class Game {
     };
 
     playerFold = () => {
+        console.log("247, player fold, status before: ", this.activePlayer?.getStatus());
         if (this.activePlayer) {
             this.activePlayer.fold = true;
             this.activePlayer.setStatus(GAME_STATUS_WAIT);
             this.stopPlayerTimeBank();
         }
+        console.log("253, player fold, status after: ", this.activePlayer?.getStatus());
+
     };
 
     playerCheck = () => {
@@ -266,7 +264,7 @@ class Game {
             p.bet = 0;
             p.fold = false;
 
-            if(p.getStatus() !== GAME_STATUS_IN_GAME){
+            if (p.getStatus() !== GAME_STATUS_IN_GAME) {
                 p.hasCards = false;
             }
         })
