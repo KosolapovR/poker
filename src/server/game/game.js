@@ -67,6 +67,7 @@ var Game = /** @class */ (function () {
                     type: types_1.DEAL_HAND,
                     data: { players: _this.players, bank: (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash(), betValue: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getBetValue() }
                 });
+                console.log("Раздача карт");
                 //запуск таймера
                 _this.startPlayerTimeBank(firstPlayer);
             }
@@ -84,7 +85,7 @@ var Game = /** @class */ (function () {
             });
         };
         this.getNextPlayer = function (currentPlayer) {
-            var _a, _b, _c;
+            var _a, _b;
             if (currentPlayer) {
                 var place_1 = _this.positionsInGame.indexOf(currentPlayer.getPosition());
                 var nextPlayer = void 0;
@@ -110,37 +111,16 @@ var Game = /** @class */ (function () {
                             break;
                     }
                 }
-                if (nextPlayer && _this._bank && ((_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getBetValue()) &&
+                if (nextPlayer && _this._bank &&
                     nextPlayer.getStatus() === types_1.GAME_STATUS_IN_GAME &&
-                    ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.bet) >= ((_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getBetValue()) ||
-                        (nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.call) === ((_c = _this._bank) === null || _c === void 0 ? void 0 : _c.getBetValue())) &&
+                    ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.bet) >= ((_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getBetValue()) ||
+                        (nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.call) === ((_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getBetValue())) &&
                     !_this.firstCircle) {
                     console.log('+++++++++++ Ставка следующего больше размера банка +++++++++++');
                     return undefined;
                 }
                 console.log('----------- Получен следующий игрок -----------');
                 return nextPlayer;
-                // console.log("Дошли до последнего игрока");
-                // console.log("Последняя позиция в игре = ", this.positionsInGame[this.positionsInGame.length - 1]);
-                // if (this._bank && nextPlayer) {
-                //     // console.log('проверка неободимости следующего круга ставок');
-                //     //проверка неободимости следующего круга ставок
-                //     if (this._bank?.getBetValue()) {
-                //         if (!nextPlayer.bet) return nextPlayer;
-                //         if (nextPlayer.bet && nextPlayer.bet < this._bank?.getBetValue() ||
-                //             nextPlayer.call && nextPlayer.call < this._bank?.getBetValue()) {
-                //             console.log("Возвращаем игрока для еще одной ставки");
-                //             return nextPlayer;
-                //         } else {
-                //             console.log('Все ставки совершены, следующий круг');
-                //             return;
-                //         }
-                //     } else {
-                //         console.log('Ставок за круг не было, следующий раунд');
-                //
-                //         return
-                //     }
-                // }
             }
         };
         this.startPlayerTimeBank = function (player) {
@@ -189,6 +169,7 @@ var Game = /** @class */ (function () {
                             else {
                                 _this.activePlayer.check = true;
                             }
+                        console.log('Set active player = ', nextPlayer.getPosition());
                         _this.setActivePlayer(nextPlayer);
                         _this.startPlayerTimeBank(nextPlayer);
                     }
@@ -274,7 +255,7 @@ var Game = /** @class */ (function () {
         };
         this.dealFlop = function () {
             var _a, _b;
-            var flop = (_a = _this.currentHand) === null || _a === void 0 ? void 0 : _a.generateFlop();
+            var flop = (_a = _this._currentHand) === null || _a === void 0 ? void 0 : _a.generateFlop();
             //установка активного игрока
             var firstPlayer = _this.getFirstPlayer();
             _this.setActivePlayer(firstPlayer);
@@ -285,7 +266,7 @@ var Game = /** @class */ (function () {
         };
         this.dealTurn = function () {
             var _a, _b;
-            var turn = (_a = _this.currentHand) === null || _a === void 0 ? void 0 : _a.generateTurn();
+            var turn = (_a = _this._currentHand) === null || _a === void 0 ? void 0 : _a.generateTurn();
             //установка активного игрока
             var firstPlayer = _this.getFirstPlayer();
             _this.setActivePlayer(firstPlayer);
@@ -296,7 +277,7 @@ var Game = /** @class */ (function () {
         };
         this.dealRiver = function () {
             var _a, _b;
-            var river = (_a = _this.currentHand) === null || _a === void 0 ? void 0 : _a.generateRiver();
+            var river = (_a = _this._currentHand) === null || _a === void 0 ? void 0 : _a.generateRiver();
             //установка активного игрока
             var firstPlayer = _this.getFirstPlayer();
             _this.setActivePlayer(firstPlayer);
@@ -306,9 +287,10 @@ var Game = /** @class */ (function () {
             _this.startPlayerTimeBank(firstPlayer);
         };
         this.showdown = function () {
-            var _a;
+            var _a, _b;
             console.log('Вскрытие');
-            (_a = _this.currentHand) === null || _a === void 0 ? void 0 : _a.getWinners(_this.getPlayersInRound());
+            console.log('размера пота = ', (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash());
+            var winners = (_b = _this._currentHand) === null || _b === void 0 ? void 0 : _b.getWinners(_this.getPlayersInRound());
         };
         this.playerWinWithoutShowDown = function (winner) {
             var _a;
@@ -321,11 +303,14 @@ var Game = /** @class */ (function () {
                 winner.increaseCash(_this._bank.getCash());
             }
         };
+        this.playerWinOnShowDown = function (winners) {
+        };
         this.updateBank = function () {
             var _a, _b;
             var sum = 0;
             _this.players.forEach(function (p) { return sum += p.bet + p.call; });
             (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.addCash(sum);
+            console.log('В банк добавлено: ', sum);
             //очищаем ставки за прошлый раунд
             (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.setBetValue(0);
         };
@@ -374,7 +359,7 @@ var Game = /** @class */ (function () {
         this._bank = new Bank_1["default"]();
     };
     Game.prototype.setCurrentHand = function (value) {
-        this.currentHand = value;
+        this._currentHand = value;
     };
     return Game;
 }());

@@ -46,16 +46,18 @@ var CurrentHand = /** @class */ (function () {
                 if (p.showdownHand)
                     playersHands.push(p.showdownHand);
             });
-            var winners = Hand.winners(playersHands); // hand2
-            console.log("===============  WINNER  ==============");
-            winners.forEach(function (w) {
+            var winnersHand = Hand.winners(playersHands); // hand2
+            // console.log("===============  WINNER  ==============");
+            var winners = [];
+            winnersHand.forEach(function (h) {
                 players.forEach(function (p) {
-                    if (isEqual(p.showdownHand, w)) {
-                        console.log("Player on position: ", p.getPosition());
+                    if (isEqual(p.showdownHand, h)) {
+                        winners.push(p);
+                        // console.log("Player on position: ", p.getPosition(), ' - ', p.getCards()[0], p.getCards()[1], h.constructor.name)
                     }
                 });
             });
-            return players;
+            return winners;
         };
         this.getRiver = function () {
             return _this.river;

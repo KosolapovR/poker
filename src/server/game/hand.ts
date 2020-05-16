@@ -72,18 +72,21 @@ export class CurrentHand {
         });
 
 
-        let winners: object[] = Hand.winners(playersHands); // hand2
-        console.log("===============  WINNER  ==============");
+        let winnersHand: object[] = Hand.winners(playersHands); // hand2
+        // console.log("===============  WINNER  ==============");
 
-        winners.forEach(w => {
+        const winners: Player[] = [];
+
+        winnersHand.forEach(h => {
             players.forEach(p => {
-                if(isEqual(p.showdownHand, w)){
-                    console.log("Player on position: ", p.getPosition())
+                if(isEqual(p.showdownHand, h)){
+                    winners.push(p);
+                    // console.log("Player on position: ", p.getPosition(), ' - ', p.getCards()[0], p.getCards()[1], h.constructor.name)
                 }
             })
         });
 
-        return players;
+        return winners;
     };
 
     public getRiver = (): string | undefined => {
