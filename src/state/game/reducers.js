@@ -47,7 +47,12 @@ const reducer = (state = initialState, action) => {
             }
         }
         case START_TIMER: {
-            return {...state, players: action.payload}
+            debugger;
+            return {
+                ...state,
+                players: action.payload.players,
+                betValue: action.payload.betValue,
+            }
         }
         default:
             return state;

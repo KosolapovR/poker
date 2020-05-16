@@ -16,7 +16,7 @@ var Player = /** @class */ (function () {
         this.increaseCash = function (value) {
             _this.cash += value;
         };
-        this.decreaseCash = function (value) {
+        this.actionBet = function (value) {
             if (_this.cash >= value) {
                 _this.cash -= value;
                 return true;

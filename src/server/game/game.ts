@@ -24,18 +24,28 @@ class Game {
     private timerId: NodeJS.Timeout | undefined;
     private observableCallback: Function | undefined;
     private round: string | undefined;
-    private bank: Bank | undefined;
+    private _bank: Bank | undefined;
+    public firstCircle: boolean;
 
     constructor() {
         this.players = [];
         this.emptyPlaces = [6, 5, 4, 3, 2, 1];
         this.availablePositions = ['bb', 'sb', 'but', 'cut', 'mp', 'utg'];
         this.positionsInGame = [];
+        this.firstCircle = true;
     }
 
     subscribe = (callback: Function) => {
         this.observableCallback = callback;
     };
+
+    public getBank(): Bank | undefined {
+        return this._bank;
+    }
+
+    public setBank() {
+        this._bank = new Bank();
+    }
 
     private getFirstPlayer = () => {
         const player: Player | undefined = this.players.find(p =>
@@ -43,9 +53,13 @@ class Game {
         return <Player>player;
     };
 
-    private setActivePlayer = (player: Player) => {
+    public setActivePlayer = (player: Player) => {
         player.isActive = true;
         this.activePlayer = player;
+    };
+
+    public getActivePlayer = (): Player | undefined => {
+        return this.activePlayer;
     };
 
     private getPlayersInRound = (): Array<Player> => {
@@ -57,33 +71,41 @@ class Game {
     };
 
     addPlayer = ({user}: { user: any }) => {
-        const place = this.emptyPlaces.pop();
+        if (this.getPlayers().length < 6) {
+            const place = this.emptyPlaces.pop();
 
-        if (place && this.placesInGame)
-            this.placesInGame.push(place);
+            if (place && this.placesInGame)
+                this.placesInGame.push(place);
 
-        const player = new Player(user.name, 200, place, this.availablePositions[<number>place - 1], GAME_STATUS_IN_GAME);
+            const player = new Player(user.name, 200, place, this.availablePositions[<number>place - 1], GAME_STATUS_IN_GAME);
 
-        if (player)
-            this.players.push(player);
+            if (player)
+                this.players.push(player);
 
-        this.positionsInGame[this.positionsInGame.length] = this.availablePositions[this.positionsInGame.length];
+            this.positionsInGame[this.positionsInGame.length] = this.availablePositions[this.positionsInGame.length];
 
-        return <Player>player;
+            return <Player>player;
+        }
     };
 
     removePlayer = (player: Player) => {
         this.positionsInGame.pop();
         this.emptyPlaces.push(<number>player.getPlace());
+
         if (this.placesInGame)
             this.placesInGame.filter(place => place !== player.getPlace());
+
         this.players = this.players.filter(p => p.getId() !== player.getId());
+
+        player.setPlace(0);
     };
 
     dealCards = () => {
         if (this.players && this.players.length > 1 && this.observableCallback) {
 
             this.players.forEach(p => p.setStatus(GAME_STATUS_IN_GAME));
+
+            this.firstCircle = true;
 
             this.refreshPlayers();
 
@@ -99,7 +121,7 @@ class Game {
             this.setActivePlayer(firstPlayer);
             this.observableCallback({
                 type: DEAL_HAND,
-                data: {players: this.players, bank: this.bank?.getCash(), betValue: this.bank?.getBetValue()}
+                data: {players: this.players, bank: this._bank?.getCash(), betValue: this._bank?.getBetValue()}
             });
 
 
@@ -125,25 +147,72 @@ class Game {
         this.currentHand = value;
     }
 
-    private getNextPlayer = (currentPlayer: Player | undefined): Player | undefined => {
+    public getNextPlayer = (currentPlayer: Player | undefined): Player | undefined => {
         if (currentPlayer) {
             const place: number = this.positionsInGame.indexOf(currentPlayer.getPosition());
 
-            if (place > 0) {
-                return this.players.find(p =>
-                    p.getPosition() === this.positionsInGame[place - 1]
-                );
-            } else if (place === 0) {
-                let nextPlayer = this.players.find(p =>
+            let nextPlayer: Player | undefined;
+
+            if (place === 0) {
+                if (this.firstCircle) this.firstCircle = false;
+
+                nextPlayer = this.players.find(p =>
                     p.getPosition() === this.positionsInGame[this.positionsInGame.length - 1]
                 );
-                if (this.bank && nextPlayer) {
-                    //проверка неободимости следующего круга ставок
-                    if (nextPlayer.bet && nextPlayer.bet < this.bank?.getBetValue() ||
-                        nextPlayer.call && nextPlayer.call < this.bank?.getBetValue())
-                        return nextPlayer;
+
+                while(nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME){
+                    nextPlayer = this.getNextPlayer(nextPlayer);
+                    if (!nextPlayer?.getStatus()) break;
+                }
+
+            } else {
+                nextPlayer = this.players.find(p =>
+                    p.getPosition() === this.positionsInGame[place - 1]
+                );
+
+                while(nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME){
+                    nextPlayer = this.getNextPlayer(nextPlayer);
+                    if (!nextPlayer?.getStatus()) break;
                 }
             }
+
+            if (nextPlayer && this._bank &&
+                this._bank?.getBetValue() &&
+                nextPlayer.getStatus() === GAME_STATUS_IN_GAME &&
+                (nextPlayer?.bet >= this._bank?.getBetValue() ||
+                    nextPlayer?.call === this._bank?.getBetValue()) &&
+                !this.firstCircle) {
+                console.log('+++++++++++ Ставка следующего больше размера банка +++++++++++');
+                return undefined;
+            }
+
+            console.log('----------- Получен следующий игрок -----------');
+
+            return nextPlayer;
+
+            // console.log("Дошли до последнего игрока");
+            // console.log("Последняя позиция в игре = ", this.positionsInGame[this.positionsInGame.length - 1]);
+
+
+            // if (this._bank && nextPlayer) {
+            //     // console.log('проверка неободимости следующего круга ставок');
+            //     //проверка неободимости следующего круга ставок
+            //     if (this._bank?.getBetValue()) {
+            //         if (!nextPlayer.bet) return nextPlayer;
+            //         if (nextPlayer.bet && nextPlayer.bet < this._bank?.getBetValue() ||
+            //             nextPlayer.call && nextPlayer.call < this._bank?.getBetValue()) {
+            //             console.log("Возвращаем игрока для еще одной ставки");
+            //             return nextPlayer;
+            //         } else {
+            //             console.log('Все ставки совершены, следующий круг');
+            //             return;
+            //         }
+            //     } else {
+            //         console.log('Ставок за круг не было, следующий раунд');
+            //
+            //         return
+            //     }
+            // }
         }
 
     };
@@ -158,67 +227,85 @@ class Game {
             }, timeBank);
 
             if (this.observableCallback) {
-                this.observableCallback({type: START_TIMER, data: this.players});
+                this.observableCallback({
+                    type: START_TIMER,
+                    data: {players: this.players, betValue: this._bank?.getBetValue()}
+                });
             }
         }
     };
 
     private stopPlayerTimeBank = (): void => {
-        //остановка таймера
-        clearTimeout(<NodeJS.Timeout>this.timerId);
 
-        this.players.forEach(p => p.isActive = false);
+        if (this.timerId) {
 
-        //обработка выигрыша без вскрытия
-        if (this.getPlayersInRound().length < 2) {
+            //остановка таймера
+            clearTimeout(<NodeJS.Timeout>this.timerId);
 
-            this.playerWinWithoutShowDown(this.getPlayersInRound()[0]);
+            this.players.forEach(p => p.isActive = false);
 
-            this.changePlayersPositions();
+            //обработка выигрыша без вскрытия
+            if (this.getPlayersInRound().length < 2) {
 
-            this.dealCards();
+                this.playerWinWithoutShowDown(this.getPlayersInRound()[0]);
 
-        } else {
-            let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
-            if (nextPlayer)
-                while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
-                    nextPlayer = this.getNextPlayer(nextPlayer);
-                    console.log("статус следующего игрока = ", nextPlayer?.getStatus());
-                }
+                this.changePlayersPositions();
 
-            if (nextPlayer) {
-                //фолд на ставку
-                if (this.bank && this.activePlayer && !this.activePlayer.call)
-                    if (this.bank.getBetValue()) {
-                        this.activePlayer.fold = true;
-                        this.activePlayer.setStatus(GAME_STATUS_WAIT);
-                    } else {
-                        this.activePlayer.check = true;
+                this.dealCards();
+
+            } else {
+                let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
+                if (nextPlayer)
+                    while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
+                        console.log("статус следующего игрока = ", nextPlayer?.getStatus());
+                        nextPlayer = this.getNextPlayer(nextPlayer);
+                        console.log("статус следующего игрока = ", nextPlayer?.getStatus());
+                        if (!nextPlayer?.getStatus()) break;
                     }
 
+                if (nextPlayer) {
+                    //фолд на ставку
+                    if (this._bank && this.activePlayer && !this.activePlayer.call && !this.activePlayer.bet)
+                        if (this._bank.getBetValue()) {
+                            this.activePlayer.fold = true;
+                            this.activePlayer.setStatus(GAME_STATUS_WAIT);
+                        } else {
+                            this.activePlayer.check = true;
+                        }
 
-                this.setActivePlayer(nextPlayer);
-                this.startPlayerTimeBank(nextPlayer);
-            } else {
-                this.nextRound();
+
+                    this.setActivePlayer(nextPlayer);
+                    this.startPlayerTimeBank(nextPlayer);
+                } else {
+                    this.nextRound();
+                }
             }
         }
     };
 
     playerBet = (betValue: number) => {
-        if (this.activePlayer && this.bank) {
 
-            const isBetSuccess = this.activePlayer.decreaseCash(betValue);
+        if (this.activePlayer && this._bank && betValue > this._bank.getBetValue()) {
+
+            let heroTotalBet = betValue - (this.activePlayer.call + this.activePlayer.bet);
+
+            const isBetSuccess = this.activePlayer.actionBet(heroTotalBet);
 
             if (isBetSuccess) {
                 this.activePlayer.bet = betValue;
+                this.activePlayer.call = 0;
+
+                console.log("bet success");
+
+                this._bank.setBetValue(betValue);
+
                 this.stopPlayerTimeBank();
             }
         }
     };
 
     playerCall = () => {
-        if (this.activePlayer && this.bank) {
+        if (this.activePlayer && this._bank) {
             let activePlayerBet = 0;
 
             if (this.activePlayer.bet) {
@@ -227,13 +314,18 @@ class Game {
                 activePlayerBet = this.activePlayer.call;
             }
 
-            const callValue = this.bank.getBetValue() - activePlayerBet;
-            if (callValue) {
-                const isCallSuccess = this.activePlayer.decreaseCash(callValue);
+            const callValue = this._bank.getBetValue() - activePlayerBet;
+
+            console.log('player call: ', callValue);
+            if (callValue > 0) {
+                const isCallSuccess = this.activePlayer.actionBet(callValue);
 
                 if (isCallSuccess) {
+                    console.log('call success', activePlayerBet + callValue);
                     this.activePlayer.call = activePlayerBet + callValue;
                     this.activePlayer.bet = 0;
+
+                    this._bank.setBetValue(activePlayerBet + callValue);
 
                     this.stopPlayerTimeBank();
                 }
@@ -285,8 +377,8 @@ class Game {
             smallBlind = playerOnSB.postSmallBlind(1);
         }
 
-        this.bank = new Bank();
-        this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
+        this._bank = new Bank();
+        this._bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
     };
 
     private dealFlop = () => {
@@ -297,7 +389,7 @@ class Game {
         this.setActivePlayer(firstPlayer);
 
         if (this.observableCallback)
-            this.observableCallback({type: FLOP, data: {flop, players: this.players, bank: this.bank?.getCash()}});
+            this.observableCallback({type: FLOP, data: {flop, players: this.players, bank: this._bank?.getCash()}});
 
         //запуск таймера
         this.startPlayerTimeBank(firstPlayer)
@@ -311,7 +403,7 @@ class Game {
         this.setActivePlayer(firstPlayer);
 
         if (this.observableCallback)
-            this.observableCallback({type: TURN, data: {turn, bank: this.bank?.getCash()}});
+            this.observableCallback({type: TURN, data: {turn, players: this.players, bank: this._bank?.getCash()}});
 
         //запуск таймера
         this.startPlayerTimeBank(firstPlayer)
@@ -325,7 +417,7 @@ class Game {
         this.setActivePlayer(firstPlayer);
 
         if (this.observableCallback)
-            this.observableCallback({type: RIVER,  data: {river, bank: this.bank?.getCash()}});
+            this.observableCallback({type: RIVER, data: {river, players: this.players, bank: this._bank?.getCash()}});
 
         //запуск таймера
         this.startPlayerTimeBank(firstPlayer)
@@ -345,10 +437,10 @@ class Game {
             p.bet ? sum += p.bet : p.call ? sum += p.call : sum
         );
 
-        this.bank?.addCash(sum);
+        this._bank?.addCash(sum);
 
-        if (this.bank && winner) {
-            winner.increaseCash(this.bank.getCash());
+        if (this._bank && winner) {
+            winner.increaseCash(this._bank.getCash());
         }
     };
 
@@ -357,10 +449,10 @@ class Game {
 
         this.players.forEach(p => sum += p.bet + p.call);
 
-        this.bank?.addCash(sum);
+        this._bank?.addCash(sum);
 
         //очищаем ставки за прошлый раунд
-        this.bank?.setBetValue(0);
+        this._bank?.setBetValue(0);
     };
 
     private nextRound = () => {

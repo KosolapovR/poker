@@ -24,7 +24,7 @@ const useStyles = makeStyles({
 function ActionBar({toCall, player, fold, check, call, bet}) {
 
     const classes = useStyles();
-    const [value, setValue] = React.useState(30);
+    const [value, setValue] = React.useState(toCall);
 
     const handleSliderChange = (event, newValue) => {
         setValue(newValue);
@@ -54,12 +54,14 @@ function ActionBar({toCall, player, fold, check, call, bet}) {
         call();
     };
 
-    const handleBet = (value) => {
+    const handleBet = () => {
         bet(value);
     };
 
     console.log("rendered Action bar, betValue = ", toCall);
     console.log("player.bet = ", player.bet);
+
+    debugger;
 
     return (
         <div className={classes.root}>
@@ -67,6 +69,8 @@ function ActionBar({toCall, player, fold, check, call, bet}) {
                 <Grid item xs>
                     <Slider
                         value={typeof value === 'number' ? value : 0}
+                        min={toCall}
+                        max={player.cash}
                         onChange={handleSliderChange}
                         aria-labelledby="input-slider"
                     />
@@ -166,8 +170,8 @@ const mapDispatchToProps = dispatch => ({
     call: () => {
         dispatch(wsCallAC())
     },
-    bet: () => {
-        dispatch(wsBetAC())
+    bet: (value) => {
+        dispatch(wsBetAC(value))
     },
 });
 

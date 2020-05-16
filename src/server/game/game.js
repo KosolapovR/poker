@@ -20,6 +20,9 @@ var Game = /** @class */ (function () {
             player.isActive = true;
             _this.activePlayer = player;
         };
+        this.getActivePlayer = function () {
+            return _this.activePlayer;
+        };
         this.getPlayersInRound = function () {
             return _this.players.filter(function (p) { return p.getStatus() === types_1.GAME_STATUS_IN_GAME; });
         };
@@ -28,14 +31,16 @@ var Game = /** @class */ (function () {
         };
         this.addPlayer = function (_a) {
             var user = _a.user;
-            var place = _this.emptyPlaces.pop();
-            if (place && _this.placesInGame)
-                _this.placesInGame.push(place);
-            var player = new player_1.Player(user.name, 200, place, _this.availablePositions[place - 1], types_1.GAME_STATUS_IN_GAME);
-            if (player)
-                _this.players.push(player);
-            _this.positionsInGame[_this.positionsInGame.length] = _this.availablePositions[_this.positionsInGame.length];
-            return player;
+            if (_this.getPlayers().length < 6) {
+                var place = _this.emptyPlaces.pop();
+                if (place && _this.placesInGame)
+                    _this.placesInGame.push(place);
+                var player = new player_1.Player(user.name, 200, place, _this.availablePositions[place - 1], types_1.GAME_STATUS_IN_GAME);
+                if (player)
+                    _this.players.push(player);
+                _this.positionsInGame[_this.positionsInGame.length] = _this.availablePositions[_this.positionsInGame.length];
+                return player;
+            }
         };
         this.removePlayer = function (player) {
             _this.positionsInGame.pop();
@@ -43,11 +48,13 @@ var Game = /** @class */ (function () {
             if (_this.placesInGame)
                 _this.placesInGame.filter(function (place) { return place !== player.getPlace(); });
             _this.players = _this.players.filter(function (p) { return p.getId() !== player.getId(); });
+            player.setPlace(0);
         };
         this.dealCards = function () {
             var _a, _b;
             if (_this.players && _this.players.length > 1 && _this.observableCallback) {
                 _this.players.forEach(function (p) { return p.setStatus(types_1.GAME_STATUS_IN_GAME); });
+                _this.firstCircle = true;
                 _this.refreshPlayers();
                 _this.postBlinds();
                 _this.round = types_1.PREFLOP;
@@ -58,7 +65,7 @@ var Game = /** @class */ (function () {
                 _this.setActivePlayer(firstPlayer);
                 _this.observableCallback({
                     type: types_1.DEAL_HAND,
-                    data: { players: _this.players, bank: (_a = _this.bank) === null || _a === void 0 ? void 0 : _a.getCash(), betValue: (_b = _this.bank) === null || _b === void 0 ? void 0 : _b.getBetValue() }
+                    data: { players: _this.players, bank: (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash(), betValue: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getBetValue() }
                 });
                 //запуск таймера
                 _this.startPlayerTimeBank(firstPlayer);
@@ -77,84 +84,135 @@ var Game = /** @class */ (function () {
             });
         };
         this.getNextPlayer = function (currentPlayer) {
-            var _a, _b;
+            var _a, _b, _c;
             if (currentPlayer) {
                 var place_1 = _this.positionsInGame.indexOf(currentPlayer.getPosition());
-                if (place_1 > 0) {
-                    return _this.players.find(function (p) {
-                        return p.getPosition() === _this.positionsInGame[place_1 - 1];
-                    });
-                }
-                else if (place_1 === 0) {
-                    var nextPlayer = _this.players.find(function (p) {
+                var nextPlayer = void 0;
+                if (place_1 === 0) {
+                    if (_this.firstCircle)
+                        _this.firstCircle = false;
+                    nextPlayer = _this.players.find(function (p) {
                         return p.getPosition() === _this.positionsInGame[_this.positionsInGame.length - 1];
                     });
-                    if (_this.bank && nextPlayer) {
-                        //проверка неободимости следующего круга ставок
-                        if (nextPlayer.bet && nextPlayer.bet < ((_a = _this.bank) === null || _a === void 0 ? void 0 : _a.getBetValue()) ||
-                            nextPlayer.call && nextPlayer.call < ((_b = _this.bank) === null || _b === void 0 ? void 0 : _b.getBetValue()))
-                            return nextPlayer;
+                    while ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()) !== types_1.GAME_STATUS_IN_GAME) {
+                        nextPlayer = _this.getNextPlayer(nextPlayer);
+                        if (!(nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()))
+                            break;
                     }
                 }
+                else {
+                    nextPlayer = _this.players.find(function (p) {
+                        return p.getPosition() === _this.positionsInGame[place_1 - 1];
+                    });
+                    while ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()) !== types_1.GAME_STATUS_IN_GAME) {
+                        nextPlayer = _this.getNextPlayer(nextPlayer);
+                        if (!(nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()))
+                            break;
+                    }
+                }
+                if (nextPlayer && _this._bank && ((_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getBetValue()) &&
+                    nextPlayer.getStatus() === types_1.GAME_STATUS_IN_GAME &&
+                    ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.bet) >= ((_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getBetValue()) ||
+                        (nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.call) === ((_c = _this._bank) === null || _c === void 0 ? void 0 : _c.getBetValue())) &&
+                    !_this.firstCircle) {
+                    console.log('+++++++++++ Ставка следующего больше размера банка +++++++++++');
+                    return undefined;
+                }
+                console.log('----------- Получен следующий игрок -----------');
+                return nextPlayer;
+                // console.log("Дошли до последнего игрока");
+                // console.log("Последняя позиция в игре = ", this.positionsInGame[this.positionsInGame.length - 1]);
+                // if (this._bank && nextPlayer) {
+                //     // console.log('проверка неободимости следующего круга ставок');
+                //     //проверка неободимости следующего круга ставок
+                //     if (this._bank?.getBetValue()) {
+                //         if (!nextPlayer.bet) return nextPlayer;
+                //         if (nextPlayer.bet && nextPlayer.bet < this._bank?.getBetValue() ||
+                //             nextPlayer.call && nextPlayer.call < this._bank?.getBetValue()) {
+                //             console.log("Возвращаем игрока для еще одной ставки");
+                //             return nextPlayer;
+                //         } else {
+                //             console.log('Все ставки совершены, следующий круг');
+                //             return;
+                //         }
+                //     } else {
+                //         console.log('Ставок за круг не было, следующий раунд');
+                //
+                //         return
+                //     }
+                // }
             }
         };
         this.startPlayerTimeBank = function (player) {
+            var _a;
             if (_this.players && _this.players.length > 1) {
                 var timeBank = player.getTimeBank();
                 _this.timerId = setTimeout(function () {
                     _this.stopPlayerTimeBank();
                 }, timeBank);
                 if (_this.observableCallback) {
-                    _this.observableCallback({ type: types_1.START_TIMER, data: _this.players });
+                    _this.observableCallback({
+                        type: types_1.START_TIMER,
+                        data: { players: _this.players, betValue: (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getBetValue() }
+                    });
                 }
             }
         };
         this.stopPlayerTimeBank = function () {
-            //остановка таймера
-            clearTimeout(_this.timerId);
-            _this.players.forEach(function (p) { return p.isActive = false; });
-            //обработка выигрыша без вскрытия
-            if (_this.getPlayersInRound().length < 2) {
-                _this.playerWinWithoutShowDown(_this.getPlayersInRound()[0]);
-                _this.changePlayersPositions();
-                _this.dealCards();
-            }
-            else {
-                var nextPlayer = _this.getNextPlayer(_this.activePlayer);
-                if (nextPlayer)
-                    while ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()) !== types_1.GAME_STATUS_IN_GAME) {
-                        nextPlayer = _this.getNextPlayer(nextPlayer);
-                        console.log("статус следующего игрока = ", nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus());
-                    }
-                if (nextPlayer) {
-                    //фолд на ставку
-                    if (_this.bank && _this.activePlayer && !_this.activePlayer.call)
-                        if (_this.bank.getBetValue()) {
-                            _this.activePlayer.fold = true;
-                            _this.activePlayer.setStatus(types_1.GAME_STATUS_WAIT);
-                        }
-                        else {
-                            _this.activePlayer.check = true;
-                        }
-                    _this.setActivePlayer(nextPlayer);
-                    _this.startPlayerTimeBank(nextPlayer);
+            if (_this.timerId) {
+                //остановка таймера
+                clearTimeout(_this.timerId);
+                _this.players.forEach(function (p) { return p.isActive = false; });
+                //обработка выигрыша без вскрытия
+                if (_this.getPlayersInRound().length < 2) {
+                    _this.playerWinWithoutShowDown(_this.getPlayersInRound()[0]);
+                    _this.changePlayersPositions();
+                    _this.dealCards();
                 }
                 else {
-                    _this.nextRound();
+                    var nextPlayer = _this.getNextPlayer(_this.activePlayer);
+                    if (nextPlayer)
+                        while ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()) !== types_1.GAME_STATUS_IN_GAME) {
+                            console.log("статус следующего игрока = ", nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus());
+                            nextPlayer = _this.getNextPlayer(nextPlayer);
+                            console.log("статус следующего игрока = ", nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus());
+                            if (!(nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()))
+                                break;
+                        }
+                    if (nextPlayer) {
+                        //фолд на ставку
+                        if (_this._bank && _this.activePlayer && !_this.activePlayer.call && !_this.activePlayer.bet)
+                            if (_this._bank.getBetValue()) {
+                                _this.activePlayer.fold = true;
+                                _this.activePlayer.setStatus(types_1.GAME_STATUS_WAIT);
+                            }
+                            else {
+                                _this.activePlayer.check = true;
+                            }
+                        _this.setActivePlayer(nextPlayer);
+                        _this.startPlayerTimeBank(nextPlayer);
+                    }
+                    else {
+                        _this.nextRound();
+                    }
                 }
             }
         };
         this.playerBet = function (betValue) {
-            if (_this.activePlayer && _this.bank) {
-                var isBetSuccess = _this.activePlayer.decreaseCash(betValue);
+            if (_this.activePlayer && _this._bank && betValue > _this._bank.getBetValue()) {
+                var heroTotalBet = betValue - (_this.activePlayer.call + _this.activePlayer.bet);
+                var isBetSuccess = _this.activePlayer.actionBet(heroTotalBet);
                 if (isBetSuccess) {
                     _this.activePlayer.bet = betValue;
+                    _this.activePlayer.call = 0;
+                    console.log("bet success");
+                    _this._bank.setBetValue(betValue);
                     _this.stopPlayerTimeBank();
                 }
             }
         };
         this.playerCall = function () {
-            if (_this.activePlayer && _this.bank) {
+            if (_this.activePlayer && _this._bank) {
                 var activePlayerBet = 0;
                 if (_this.activePlayer.bet) {
                     activePlayerBet = _this.activePlayer.bet;
@@ -162,12 +220,15 @@ var Game = /** @class */ (function () {
                 else if (_this.activePlayer.call) {
                     activePlayerBet = _this.activePlayer.call;
                 }
-                var callValue = _this.bank.getBetValue() - activePlayerBet;
-                if (callValue) {
-                    var isCallSuccess = _this.activePlayer.decreaseCash(callValue);
+                var callValue = _this._bank.getBetValue() - activePlayerBet;
+                console.log('player call: ', callValue);
+                if (callValue > 0) {
+                    var isCallSuccess = _this.activePlayer.actionBet(callValue);
                     if (isCallSuccess) {
+                        console.log('call success', activePlayerBet + callValue);
                         _this.activePlayer.call = activePlayerBet + callValue;
                         _this.activePlayer.bet = 0;
+                        _this._bank.setBetValue(activePlayerBet + callValue);
                         _this.stopPlayerTimeBank();
                     }
                 }
@@ -208,8 +269,8 @@ var Game = /** @class */ (function () {
             if (playerOnSB) {
                 smallBlind = playerOnSB.postSmallBlind(1);
             }
-            _this.bank = new Bank_1["default"]();
-            _this.bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
+            _this._bank = new Bank_1["default"]();
+            _this._bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
         };
         this.dealFlop = function () {
             var _a, _b;
@@ -218,7 +279,7 @@ var Game = /** @class */ (function () {
             var firstPlayer = _this.getFirstPlayer();
             _this.setActivePlayer(firstPlayer);
             if (_this.observableCallback)
-                _this.observableCallback({ type: types_1.FLOP, data: { flop: flop, players: _this.players, bank: (_b = _this.bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
+                _this.observableCallback({ type: types_1.FLOP, data: { flop: flop, players: _this.players, bank: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
             //запуск таймера
             _this.startPlayerTimeBank(firstPlayer);
         };
@@ -229,7 +290,7 @@ var Game = /** @class */ (function () {
             var firstPlayer = _this.getFirstPlayer();
             _this.setActivePlayer(firstPlayer);
             if (_this.observableCallback)
-                _this.observableCallback({ type: types_1.TURN, data: { turn: turn, bank: (_b = _this.bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
+                _this.observableCallback({ type: types_1.TURN, data: { turn: turn, players: _this.players, bank: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
             //запуск таймера
             _this.startPlayerTimeBank(firstPlayer);
         };
@@ -240,7 +301,7 @@ var Game = /** @class */ (function () {
             var firstPlayer = _this.getFirstPlayer();
             _this.setActivePlayer(firstPlayer);
             if (_this.observableCallback)
-                _this.observableCallback({ type: types_1.RIVER, data: { river: river, bank: (_b = _this.bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
+                _this.observableCallback({ type: types_1.RIVER, data: { river: river, players: _this.players, bank: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
             //запуск таймера
             _this.startPlayerTimeBank(firstPlayer);
         };
@@ -255,18 +316,18 @@ var Game = /** @class */ (function () {
             _this.players.forEach(function (p) {
                 return p.bet ? sum += p.bet : p.call ? sum += p.call : sum;
             });
-            (_a = _this.bank) === null || _a === void 0 ? void 0 : _a.addCash(sum);
-            if (_this.bank && winner) {
-                winner.increaseCash(_this.bank.getCash());
+            (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.addCash(sum);
+            if (_this._bank && winner) {
+                winner.increaseCash(_this._bank.getCash());
             }
         };
         this.updateBank = function () {
             var _a, _b;
             var sum = 0;
             _this.players.forEach(function (p) { return sum += p.bet + p.call; });
-            (_a = _this.bank) === null || _a === void 0 ? void 0 : _a.addCash(sum);
+            (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.addCash(sum);
             //очищаем ставки за прошлый раунд
-            (_b = _this.bank) === null || _b === void 0 ? void 0 : _b.setBetValue(0);
+            (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.setBetValue(0);
         };
         this.nextRound = function () {
             _this.updateBank();
@@ -304,7 +365,14 @@ var Game = /** @class */ (function () {
         this.emptyPlaces = [6, 5, 4, 3, 2, 1];
         this.availablePositions = ['bb', 'sb', 'but', 'cut', 'mp', 'utg'];
         this.positionsInGame = [];
+        this.firstCircle = true;
     }
+    Game.prototype.getBank = function () {
+        return this._bank;
+    };
+    Game.prototype.setBank = function () {
+        this._bank = new Bank_1["default"]();
+    };
     Game.prototype.setCurrentHand = function (value) {
         this.currentHand = value;
     };

@@ -57,7 +57,7 @@ export class Player {
         this.cash += value;
     };
 
-    decreaseCash = (value: number): boolean => {
+    actionBet = (value: number): boolean => {
         if (this.cash >= value) {
             this.cash -= value;
             return true;

@@ -17,16 +17,6 @@ game.subscribe(gameEventHandler);
 io.on('connection', function (socket) {
 
     socket.on('join', (user) => {
-        /*var hand1 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', '3c', 'Kd']);
-        var hand2 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', 'Ac', 'Kc']);
-        var hand3 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', 'Ah', 'Qh']);
-        var winner = Hand.winners([hand1, hand2, hand3]); // hand2
-        console.log('hand1 = ', isEqual(hand1.cards, winner[0].cards));
-
-        console.log('hand2 = ', isEqual(hand2.cards, winner[0].cards));
-        console.log('hand3 = ', isEqual(hand3.cards, winner[0].cards));
-        console.log('Зашел   новый пользователь');*/
-
         //проверка наличия мест
         if (game.getPlayers().length <= 6) {
             socket.join('PokerRoom');
@@ -75,12 +65,10 @@ function gameEventHandler(event) {
             break;
         }
         case types.START_TIMER: {
-            console.log('Старт таймера');
             io.sockets.emit('startTimer', event.data);
             break;
         }
         case types.STOP_TIMER: {
-            console.log('Конец таймера');
             io.sockets.emit('stopTimer', event.data);
             break;
         }
