@@ -15,6 +15,16 @@ var Bank = /** @class */ (function () {
         this.setBetValue = function (value) {
             _this.betValue = value;
         };
+        this.shareBetweenPlayers = function (players) {
+            var playersCount = players.length, pot = _this.getCash(), extra = pot % playersCount, part = (pot - extra) / playersCount;
+            if (playersCount === 3)
+                console.log('pot = ', pot, ' extra = ', extra, ' part = ', part);
+            players.forEach(function (p) { return p.increaseCash(part); });
+            for (var i = 0; extra > 0; i++, extra--) {
+                players[i].increaseCash(1);
+            }
+            _this.cash = 0;
+        };
         this.cash = 0;
         this.betValue = 0;
     }

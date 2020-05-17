@@ -288,9 +288,10 @@ var Game = /** @class */ (function () {
         };
         this.showdown = function () {
             var _a, _b;
-            console.log('Вскрытие');
-            console.log('размера пота = ', (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash());
+            console.log('Вскрытие, размера пота = ', (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash());
             var winners = (_b = _this._currentHand) === null || _b === void 0 ? void 0 : _b.getWinners(_this.getPlayersInRound());
+            if (winners)
+                _this.playerWinOnShowDown(winners);
         };
         this.playerWinWithoutShowDown = function (winner) {
             var _a;
@@ -304,6 +305,8 @@ var Game = /** @class */ (function () {
             }
         };
         this.playerWinOnShowDown = function (winners) {
+            var _a;
+            (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.shareBetweenPlayers(winners);
         };
         this.updateBank = function () {
             var _a, _b;
