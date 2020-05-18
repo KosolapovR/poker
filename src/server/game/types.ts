@@ -7,7 +7,9 @@ const TURN: string = 'game/TURN';
 const RIVER: string = 'game/RIVER';
 const SHOWDOWN: string = 'game/SHOWDOWN';
 const GAME_STATUS_IN_GAME = 'game/GAME_STATUS_IN_GAME';
+const GAME_STATUS_ALL_IN = 'game/GAME_STATUS_ALL_IN';
 const GAME_STATUS_WAIT = 'game/GAME_STATUS_WAIT';
+const GAME_STATUS_SIT_OUT = 'game/GAME_STATUS_SIT_OUT';
 
 export {
     DEAL_HAND,
@@ -19,5 +21,7 @@ export {
     RIVER,
     SHOWDOWN,
     GAME_STATUS_IN_GAME,
-    GAME_STATUS_WAIT
+    GAME_STATUS_WAIT,
+    GAME_STATUS_ALL_IN,
+    GAME_STATUS_SIT_OUT
 }
