@@ -69,8 +69,18 @@ var Game = /** @class */ (function () {
         };
         this.dealCards = function () {
             var _a, _b;
+            _this.isShowdown = false;
             if (_this.players && _this.players.length > 1 && _this.observableCallback) {
-                _this.players.forEach(function (p) { return p.getCash() > 0 ? p.setStatus(types_1.GAME_STATUS_IN_GAME) : p.setStatus(types_1.GAME_STATUS_SIT_OUT); });
+                _this.players.forEach(function (p) {
+                    if (p.getCash() > 0) {
+                        p.setStatus(types_1.GAME_STATUS_IN_GAME);
+                        p.hasCards = true;
+                        p.showCards = false;
+                    }
+                    else {
+                        p.setStatus(types_1.GAME_STATUS_SIT_OUT);
+                    }
+                });
                 _this.firstCircle = true;
                 _this.refreshPlayers();
                 _this.postBlinds();
@@ -103,13 +113,19 @@ var Game = /** @class */ (function () {
             });
         };
         this.getNextPlayer = function (currentPlayer) {
-            var _a, _b;
+            var _a, _b, _c;
             if (currentPlayer) {
                 var place_1 = _this.positionsInGame.indexOf(currentPlayer.getPosition());
                 var nextPlayer = void 0;
                 if (place_1 === 0) {
                     if (_this.firstCircle)
                         _this.firstCircle = false;
+                    //все пошли All-in либо сфолдили
+                    if (_this.getPlayersInRound().length < 1) {
+                        console.log('<<<<<< Все пошли AI');
+                        return undefined;
+                    }
+                    ;
                     nextPlayer = _this.players.find(function (p) {
                         return p.getPosition() === _this.positionsInGame[_this.positionsInGame.length - 1];
                     });
@@ -117,7 +133,11 @@ var Game = /** @class */ (function () {
                         nextPlayer = _this.getNextPlayer(nextPlayer);
                         if (!(nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()))
                             break;
+                        if (((_a = _this.getActivePlayer()) === null || _a === void 0 ? void 0 : _a.getPosition()) === (nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition()))
+                            break;
                     }
+                    if (nextPlayer)
+                        console.log('Зашли в первый блок 201, позиция следующего: ', nextPlayer.getPosition());
                 }
                 else {
                     nextPlayer = _this.players.find(function (p) {
@@ -137,13 +157,13 @@ var Game = /** @class */ (function () {
                 }
                 if (nextPlayer && _this._bank &&
                     nextPlayer.getStatus() === types_1.GAME_STATUS_IN_GAME &&
-                    ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.bet) >= ((_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getBetValue()) ||
-                        (nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.call) === ((_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getBetValue())) &&
+                    ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.bet) >= ((_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getBetValue()) ||
+                        (nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.call) === ((_c = _this._bank) === null || _c === void 0 ? void 0 : _c.getBetValue())) &&
                     !_this.firstCircle) {
-                    //currentPlayer('+++++++++++ Переход на седующий раунд +++++++++++');
+                    console.log('+++++++++++ Переход на седующий раунд +++++++++++');
                     return undefined;
                 }
-                //currentPlayer('----------- Получен следующий игрок -----------');
+                console.log('----------- Получен следующий игрок -----------');
                 return nextPlayer;
             }
         };
@@ -163,7 +183,7 @@ var Game = /** @class */ (function () {
             }
         };
         this.stopPlayerTimeBank = function () {
-            var _a;
+            var _a, _b;
             if (_this.timerId) {
                 //остановка таймера
                 clearTimeout(_this.timerId);
@@ -176,16 +196,20 @@ var Game = /** @class */ (function () {
                 }
                 else {
                     var nextPlayer = _this.getNextPlayer(_this.activePlayer);
-                    if (nextPlayer)
-                        while ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()) !== types_1.GAME_STATUS_IN_GAME) {
-                            //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
-                            nextPlayer = _this.getNextPlayer(nextPlayer);
-                            //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
-                            if (!(nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getStatus()))
-                                break;
-                            if ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition()) === ((_a = _this.activePlayer) === null || _a === void 0 ? void 0 : _a.getPosition()))
-                                break;
-                        }
+                    // if (nextPlayer)
+                    //     while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
+                    //         //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
+                    //         nextPlayer = this.getNextPlayer(nextPlayer);
+                    //         //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
+                    //         if (!nextPlayer?.getStatus()) break;
+                    //         if (nextPlayer?.getPosition() === this.activePlayer?.getPosition()) break;
+                    //     }
+                    console.log("@@@ nextPlayer?.getPosition() = ", nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition());
+                    console.log("@@@ this.ActivePlayer?.getPosition() = ", (_a = _this.activePlayer) === null || _a === void 0 ? void 0 : _a.getPosition());
+                    if ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition()) === ((_b = _this.activePlayer) === null || _b === void 0 ? void 0 : _b.getPosition())) {
+                        console.log('!!!!!!! 286 pos: ', nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition());
+                        nextPlayer = undefined;
+                    }
                     if (nextPlayer) {
                         //фолд на ставку
                         if (_this._bank && _this.activePlayer && !_this.activePlayer.call && !_this.activePlayer.bet)
@@ -196,11 +220,12 @@ var Game = /** @class */ (function () {
                             else {
                                 _this.activePlayer.check = true;
                             }
-                        //currentPlayer('Set active player = ', nextPlayer.getPosition());
+                        console.log('302 Set active player = ', nextPlayer.getPosition());
                         _this.setActivePlayer(nextPlayer);
                         _this.startPlayerTimeBank(nextPlayer);
                     }
                     else {
+                        console.log('##### Кинули в следующий раунд');
                         _this.nextRound();
                     }
                 }
@@ -251,6 +276,7 @@ var Game = /** @class */ (function () {
         this.playerFold = function () {
             if (_this.activePlayer) {
                 _this.activePlayer.fold = true;
+                _this.activePlayer.hasCards = false;
                 _this.activePlayer.setStatus(types_1.GAME_STATUS_WAIT);
                 _this.stopPlayerTimeBank();
             }
@@ -267,7 +293,7 @@ var Game = /** @class */ (function () {
                 p.call = 0;
                 p.bet = 0;
                 p.fold = false;
-                if (p.getStatus() !== types_1.GAME_STATUS_IN_GAME) {
+                if (p.getStatus() !== types_1.GAME_STATUS_IN_GAME && p.getStatus() !== types_1.GAME_STATUS_ALL_IN) {
                     p.hasCards = false;
                 }
             });
@@ -286,48 +312,82 @@ var Game = /** @class */ (function () {
             _this._bank = new Bank_1["default"]();
             _this._bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
         };
+        this.openCardsOnShowDown = function () {
+            var playersOnShowDown = __spreadArrays(_this.getPlayersInRound(), _this.getPlayersAllIn());
+            playersOnShowDown.forEach(function (p) { return p.showCards = true; });
+            _this.isShowdown = true;
+        };
         this.dealFlop = function () {
             var _a, _b;
             var flop = (_a = _this._currentHand) === null || _a === void 0 ? void 0 : _a.generateFlop();
-            //установка активного игрока
-            var firstPlayer = _this.getFirstPlayer();
-            //currentPlayer("позиция первого игрока после флопа ", firstPlayer.getPosition())
-            _this.setActivePlayer(firstPlayer);
             if (_this.observableCallback)
                 _this.observableCallback({ type: types_1.FLOP, data: { flop: flop, players: _this.players, bank: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
             //проверка количества активных игроков в раунде
-            if (_this.getPlayersInRound().length < 2)
-                _this.nextRound();
-            //запуск таймера
-            _this.startPlayerTimeBank(firstPlayer);
+            if (_this.getPlayersInRound().length < 2) {
+                console.log("КОличество активных игроков меньше 2");
+                //всрытие карт
+                if (!_this.isShowdown) {
+                    console.log("Выскрытие карт");
+                    _this.openCardsOnShowDown();
+                }
+                setTimeout(function () {
+                    _this.nextRound();
+                }, 3000);
+            }
+            else {
+                //установка активного игрока
+                var firstPlayer = _this.getFirstPlayer();
+                console.log("позиция первого игрока после флопа ", firstPlayer.getPosition());
+                _this.setActivePlayer(firstPlayer);
+                //запуск таймера
+                _this.startPlayerTimeBank(firstPlayer);
+            }
         };
         this.dealTurn = function () {
             var _a, _b;
             var turn = (_a = _this._currentHand) === null || _a === void 0 ? void 0 : _a.generateTurn();
-            //установка активного игрока
-            var firstPlayer = _this.getFirstPlayer();
-            _this.setActivePlayer(firstPlayer);
             if (_this.observableCallback)
                 _this.observableCallback({ type: types_1.TURN, data: { turn: turn, players: _this.players, bank: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
             //проверка количества активных игроков в раунде
-            if (_this.getPlayersInRound().length < 2)
-                _this.nextRound();
-            //запуск таймера
-            _this.startPlayerTimeBank(firstPlayer);
+            if (_this.getPlayersInRound().length < 2) {
+                //всрытие карт
+                if (!_this.isShowdown) {
+                    _this.openCardsOnShowDown();
+                }
+                setTimeout(function () {
+                    _this.nextRound();
+                }, 3000);
+            }
+            else {
+                //установка активного игрока
+                var firstPlayer = _this.getFirstPlayer();
+                _this.setActivePlayer(firstPlayer);
+                //запуск таймера
+                _this.startPlayerTimeBank(firstPlayer);
+            }
         };
         this.dealRiver = function () {
             var _a, _b;
             var river = (_a = _this._currentHand) === null || _a === void 0 ? void 0 : _a.generateRiver();
-            //установка активного игрока
-            var firstPlayer = _this.getFirstPlayer();
-            _this.setActivePlayer(firstPlayer);
             if (_this.observableCallback)
                 _this.observableCallback({ type: types_1.RIVER, data: { river: river, players: _this.players, bank: (_b = _this._bank) === null || _b === void 0 ? void 0 : _b.getCash() } });
             //проверка количества активных игроков в раунде
-            if (_this.getPlayersInRound().length < 2)
-                _this.nextRound();
-            //запуск таймера
-            _this.startPlayerTimeBank(firstPlayer);
+            if (_this.getPlayersInRound().length < 2) {
+                //всрытие карт
+                if (!_this.isShowdown) {
+                    _this.openCardsOnShowDown();
+                }
+                setTimeout(function () {
+                    _this.nextRound();
+                }, 3000);
+            }
+            else {
+                //установка активного игрока
+                var firstPlayer = _this.getFirstPlayer();
+                _this.setActivePlayer(firstPlayer);
+                //запуск таймера
+                _this.startPlayerTimeBank(firstPlayer);
+            }
         };
         this.showdown = function () {
             var _a, _b;
@@ -335,7 +395,10 @@ var Game = /** @class */ (function () {
             var winners = (_b = _this._currentHand) === null || _b === void 0 ? void 0 : _b.getWinners(__spreadArrays(_this.getPlayersInRound(), _this.getPlayersAllIn()));
             if (winners)
                 _this.playerWinOnShowDown(winners);
-            _this.nextRound();
+            //новая раздача
+            setTimeout(function () {
+                _this.nextRound();
+            }, 6000);
         };
         this.playerWinWithoutShowDown = function (winner) {
             var _a;
@@ -403,6 +466,7 @@ var Game = /** @class */ (function () {
         this.availablePositions = ['bb', 'sb', 'but', 'cut', 'mp', 'utg'];
         this.positionsInGame = [];
         this.firstCircle = true;
+        this.isShowdown = false;
     }
     Game.prototype.getBank = function () {
         return this._bank;

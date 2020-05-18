@@ -25,6 +25,7 @@ class Game {
     private observableCallback: Function | undefined;
     private round: string | undefined;
     private _bank: Bank | undefined;
+    private isShowdown: boolean;
     public firstCircle: boolean;
 
     constructor() {
@@ -33,6 +34,7 @@ class Game {
         this.availablePositions = ['bb', 'sb', 'but', 'cut', 'mp', 'utg'];
         this.positionsInGame = [];
         this.firstCircle = true;
+        this.isShowdown = false;
     }
 
     subscribe = (callback: Function) => {
@@ -115,9 +117,21 @@ class Game {
     };
 
     dealCards = () => {
+
+        this.isShowdown = false;
+
         if (this.players && this.players.length > 1 && this.observableCallback) {
 
-            this.players.forEach(p => p.getCash() > 0 ? p.setStatus(GAME_STATUS_IN_GAME) : p.setStatus(GAME_STATUS_SIT_OUT));
+            this.players.forEach(p => {
+                    if (p.getCash() > 0) {
+                        p.setStatus(GAME_STATUS_IN_GAME);
+                        p.hasCards = true;
+                        p.showCards = false;
+                    } else {
+                        p.setStatus(GAME_STATUS_SIT_OUT)
+                    }
+                }
+            );
 
             this.firstCircle = true;
 
@@ -171,6 +185,12 @@ class Game {
             if (place === 0) {
                 if (this.firstCircle) this.firstCircle = false;
 
+                //все пошли All-in либо сфолдили
+                if (this.getPlayersInRound().length < 1){
+                    console.log('<<<<<< Все пошли AI');
+                    return undefined;
+                }
+
                 nextPlayer = this.players.find(p =>
                     p.getPosition() === this.positionsInGame[this.positionsInGame.length - 1]
                 );
@@ -178,8 +198,11 @@ class Game {
                 while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
                     nextPlayer = this.getNextPlayer(nextPlayer);
                     if (!nextPlayer?.getStatus()) break;
+                    if (this.getActivePlayer()?.getPosition() === nextPlayer?.getPosition()) break;
                 }
 
+                if (nextPlayer)
+                    console.log('Зашли в первый блок 201, позиция следующего: ', nextPlayer.getPosition())
             } else {
                 nextPlayer = this.players.find(p =>
                     p.getPosition() === this.positionsInGame[place - 1]
@@ -204,12 +227,11 @@ class Game {
                 (nextPlayer?.bet >= this._bank?.getBetValue() ||
                     nextPlayer?.call === this._bank?.getBetValue()) &&
                 !this.firstCircle) {
-                //currentPlayer('+++++++++++ Переход на седующий раунд +++++++++++');
+                console.log('+++++++++++ Переход на седующий раунд +++++++++++');
                 return undefined;
             }
 
-            //currentPlayer('----------- Получен следующий игрок -----------');
-
+            console.log('----------- Получен следующий игрок -----------');
             return nextPlayer;
         }
 
@@ -253,14 +275,22 @@ class Game {
 
             } else {
                 let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
-                if (nextPlayer)
-                    while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
-                        //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
-                        nextPlayer = this.getNextPlayer(nextPlayer);
-                        //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
-                        if (!nextPlayer?.getStatus()) break;
-                        if (nextPlayer?.getPosition() === this.activePlayer?.getPosition()) break;
-                    }
+                // if (nextPlayer)
+                //     while (nextPlayer?.getStatus() !== GAME_STATUS_IN_GAME) {
+                //         //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
+                //         nextPlayer = this.getNextPlayer(nextPlayer);
+                //         //currentPlayer("статус следующего игрока = ", nextPlayer?.getStatus());
+                //         if (!nextPlayer?.getStatus()) break;
+                //         if (nextPlayer?.getPosition() === this.activePlayer?.getPosition()) break;
+                //     }
+
+                console.log("@@@ nextPlayer?.getPosition() = ", nextPlayer?.getPosition());
+                console.log("@@@ this.ActivePlayer?.getPosition() = ", this.activePlayer?.getPosition());
+                if (nextPlayer?.getPosition() === this.activePlayer?.getPosition()){
+
+                    console.log('!!!!!!! 286 pos: ', nextPlayer?.getPosition());
+                    nextPlayer = undefined;
+                }
 
                 if (nextPlayer) {
                     //фолд на ставку
@@ -272,10 +302,11 @@ class Game {
                             this.activePlayer.check = true;
                         }
 
-                    //currentPlayer('Set active player = ', nextPlayer.getPosition());
+                    console.log('302 Set active player = ', nextPlayer.getPosition());
                     this.setActivePlayer(nextPlayer);
                     this.startPlayerTimeBank(nextPlayer);
                 } else {
+                    console.log('##### Кинули в следующий раунд');
                     this.nextRound();
                 }
             }
@@ -343,6 +374,7 @@ class Game {
     playerFold = () => {
         if (this.activePlayer) {
             this.activePlayer.fold = true;
+            this.activePlayer.hasCards = false;
             this.activePlayer.setStatus(GAME_STATUS_WAIT);
             this.stopPlayerTimeBank();
         }
@@ -362,7 +394,7 @@ class Game {
             p.bet = 0;
             p.fold = false;
 
-            if (p.getStatus() !== GAME_STATUS_IN_GAME) {
+            if (p.getStatus() !== GAME_STATUS_IN_GAME && p.getStatus() !== GAME_STATUS_ALL_IN) {
                 p.hasCards = false;
             }
         })
@@ -388,57 +420,102 @@ class Game {
         this._bank.setBetValue(bigBlind > smallBlind ? bigBlind : smallBlind);
     };
 
+    private openCardsOnShowDown = () => {
+        let playersOnShowDown = [...this.getPlayersInRound(), ...this.getPlayersAllIn()];
+
+        playersOnShowDown.forEach(p => p.showCards = true);
+
+        this.isShowdown = true;
+    };
+
     private dealFlop = () => {
         const flop = this._currentHand?.generateFlop();
-
-        //установка активного игрока
-        const firstPlayer = this.getFirstPlayer();
-        //currentPlayer("позиция первого игрока после флопа ", firstPlayer.getPosition())
-        this.setActivePlayer(firstPlayer);
 
         if (this.observableCallback)
             this.observableCallback({type: FLOP, data: {flop, players: this.players, bank: this._bank?.getCash()}});
 
         //проверка количества активных игроков в раунде
-        if(this.getPlayersInRound().length < 2) this.nextRound();
+        if (this.getPlayersInRound().length < 2) {
 
-        //запуск таймера
-        this.startPlayerTimeBank(firstPlayer)
+            console.log("КОличество активных игроков меньше 2");
+            //всрытие карт
+            if (!this.isShowdown) {
+                console.log("Выскрытие карт");
+                this.openCardsOnShowDown();
+            }
+
+            setTimeout(() => {
+                this.nextRound();
+            }, 3000)
+
+        } else {
+
+            //установка активного игрока
+            const firstPlayer = this.getFirstPlayer();
+            console.log("позиция первого игрока после флопа ", firstPlayer.getPosition());
+            this.setActivePlayer(firstPlayer);
+
+            //запуск таймера
+            this.startPlayerTimeBank(firstPlayer)
+        }
     };
 
     private dealTurn = () => {
         const turn = this._currentHand?.generateTurn();
 
-        //установка активного игрока
-        const firstPlayer = this.getFirstPlayer();
-        this.setActivePlayer(firstPlayer);
-
         if (this.observableCallback)
             this.observableCallback({type: TURN, data: {turn, players: this.players, bank: this._bank?.getCash()}});
 
         //проверка количества активных игроков в раунде
-        if(this.getPlayersInRound().length < 2) this.nextRound();
+        if (this.getPlayersInRound().length < 2) {
 
-        //запуск таймера
-        this.startPlayerTimeBank(firstPlayer)
+            //всрытие карт
+            if (!this.isShowdown) {
+                this.openCardsOnShowDown();
+            }
+
+            setTimeout(() => {
+                this.nextRound();
+            }, 3000)
+
+        } else {
+
+            //установка активного игрока
+            const firstPlayer = this.getFirstPlayer();
+            this.setActivePlayer(firstPlayer);
+
+            //запуск таймера
+            this.startPlayerTimeBank(firstPlayer)
+        }
     };
 
     private dealRiver = () => {
         const river = this._currentHand?.generateRiver();
 
-        //установка активного игрока
-        const firstPlayer = this.getFirstPlayer();
-        this.setActivePlayer(firstPlayer);
-
         if (this.observableCallback)
             this.observableCallback({type: RIVER, data: {river, players: this.players, bank: this._bank?.getCash()}});
 
         //проверка количества активных игроков в раунде
-        if(this.getPlayersInRound().length < 2) this.nextRound();
+        if (this.getPlayersInRound().length < 2) {
 
+            //всрытие карт
+            if (!this.isShowdown) {
+                this.openCardsOnShowDown();
+            }
 
-        //запуск таймера
-        this.startPlayerTimeBank(firstPlayer)
+            setTimeout(() => {
+                this.nextRound();
+            }, 3000)
+
+        } else {
+
+            //установка активного игрока
+            const firstPlayer = this.getFirstPlayer();
+            this.setActivePlayer(firstPlayer);
+
+            //запуск таймера
+            this.startPlayerTimeBank(firstPlayer)
+        }
     };
 
     private showdown = () => {
@@ -452,7 +529,10 @@ class Game {
         if (winners)
             this.playerWinOnShowDown(winners);
 
-        this.nextRound();
+        //новая раздача
+        setTimeout(() => {
+            this.nextRound();
+        }, 6000);
     };
 
     private playerWinWithoutShowDown = (winner: Player | undefined) => {
@@ -498,7 +578,7 @@ class Game {
 
         switch (this.round) {
             case PREFLOP: {
-               // console.log('dealFlop');
+                // console.log('dealFlop');
                 this.round = FLOP;
                 this.dealFlop();
                 break;

@@ -264,6 +264,35 @@ test('get next player on bb | ai | f | c | r |', () => {
     expect(nextPlayer).toBeInstanceOf(Player);
     expect(nextPlayer.getPosition()).toEqual('sb');
 });
+test('get next player on bb | ai | ai | f | f |', () => {
+
+    const game = new Game();
+
+    game.setBank();
+    const bank = game.getBank();
+
+    game.subscribe((data) => {
+    });
+
+    const bb = game.addPlayer({user: {name: "Роман1"}});
+    const sb = game.addPlayer({user: {name: "Роман2"}});
+    const but = game.addPlayer({user: {name: "Роман3"}});
+    const cut = game.addPlayer({user: {name: "Роман4"}});
+
+    game.dealCards();
+
+    game.playerBet(200);
+    game.playerCall();
+    game.playerFold();
+    game.playerFold();
+
+    let nextPlayer = game.getNextPlayer(bb);
+
+    // expect(game.getCurrentRound()).toEqual(PREFLOP);
+    expect(game.getPlayersAllIn().length).toEqual(2);
+    expect(game.getPlayersInRound().length).toEqual(0);
+    expect(nextPlayer).toBeUndefined();
+});
 
 // test('get next player on bb in firstRound, cut-fold | but-fold |  sb-call | bb-bet', () => {
 //

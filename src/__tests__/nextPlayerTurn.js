@@ -1,6 +1,6 @@
 import Game from '../server/game/game';
 import {Player} from "../server/game/player";
-import {FLOP, GAME_STATUS_ALL_IN, PREFLOP, TURN} from "../server/game/types";
+import {FLOP, GAME_STATUS_ALL_IN, PREFLOP, RIVER, TURN} from "../server/game/types";
 
 test('get next player on bb | ch | ch | ch | ch |', () => {
 
@@ -576,7 +576,7 @@ test('get next player on bb | ai | ai | ai | c |', () => {
 
     let nextPlayer = game.getNextPlayer(bb);
 
-    expect(game.getCurrentRound()).toEqual(PREFLOP);
+    expect(game.getCurrentRound()).toEqual(RIVER);
 });
 
 

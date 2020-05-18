@@ -27,6 +27,7 @@ const socketMiddleware = (store) => {
         switch (action.type) {
             case WS_CONNECTED: {
                 socket.on('dealHand', data => {
+                    console.log(data);
                     store.dispatch(dealHandAC(data));
                 });
 

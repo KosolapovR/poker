@@ -46,12 +46,13 @@ function Table({connected, bank, betValue, flop, turn, river, connect, nextHand,
 
         let activePlayer = realPlayers.find(p => p.isActive);
 
-        if (hero.place !== activePlayer.place || hero.position !== activePlayer.position) {
+        if (activePlayer)
+            if (hero.place !== activePlayer.place || hero.position !== activePlayer.position) {
 
-            currentPlayer = activePlayer;
+                currentPlayer = activePlayer;
 
-            setHero(currentPlayer);
-        }
+                setHero(currentPlayer);
+            }
     }
 
     const classes = useStyles();

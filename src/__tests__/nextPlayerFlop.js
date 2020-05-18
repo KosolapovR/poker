@@ -476,7 +476,7 @@ test('get next player on bb | ai | ai | ai | c |', () => {
 
     let nextPlayer = game.getNextPlayer(bb);
 
-    expect(game.getCurrentRound()).toEqual(PREFLOP);
+    expect(game.getCurrentRound()).toEqual(TURN);
 });
 
 

@@ -89,7 +89,7 @@ function Player({name, status, dealer, bigBlind, timeBank, smallBlind, fold, isA
                 {dealer && <Button position={positions.button} type='dealer'/>}
                 {bigBlind && <Button position={positions.button} type='bigBlind'/>}
                 {smallBlind && <Button position={positions.button} type='smallBlind'/>}
-                {cards && !fold && cards.length > 0 && !showCards && <div className={classes.pocketPairHidden}>
+                {cards && !fold && cards.length > 0 && hasCards && !showCards && <div className={classes.pocketPairHidden}>
                     <CardBackground/>
                     <CardBackground/>
                 </div>}
