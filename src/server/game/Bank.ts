@@ -1,4 +1,5 @@
 import {Player} from "./player";
+import {GAME_STATUS_IN_GAME} from "./types";
 
 class Bank {
     private cash: number;

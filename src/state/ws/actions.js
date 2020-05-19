@@ -4,7 +4,6 @@ import {
     WS_HERO_CALL,
     WS_HERO_CHECK,
     WS_HERO_FOLD,
-    WS_MOVE_BANK,
     WS_NEXT_HAND
 } from "./types";
 

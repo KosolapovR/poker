@@ -40,6 +40,9 @@ var Game = /** @class */ (function () {
         this.getPlayersInRound = function () {
             return _this.players.filter(function (p) { return p.getStatus() === types_1.GAME_STATUS_IN_GAME; });
         };
+        this.getNonSitOutPLayers = function () {
+            return _this.players.filter(function (p) { return p.getStatus() !== types_1.GAME_STATUS_SIT_OUT; });
+        };
         this.getPlayersAllIn = function () {
             return _this.players.filter(function (p) { return p.getStatus() === types_1.GAME_STATUS_ALL_IN; });
         };
@@ -72,6 +75,10 @@ var Game = /** @class */ (function () {
             _this.isShowdown = false;
             if (_this.players && _this.players.length > 1 && _this.observableCallback) {
                 _this.players.forEach(function (p) {
+                    //увеличиваем банкрол игрока на вечиличу его выигрыша
+                    if (p.addedCash > 0)
+                        p.increaseCash(p.addedCash);
+                    p.addedCash = 0;
                     if (p.getCash() > 0) {
                         p.setStatus(types_1.GAME_STATUS_IN_GAME);
                         p.hasCards = true;
@@ -81,9 +88,6 @@ var Game = /** @class */ (function () {
                         p.setStatus(types_1.GAME_STATUS_SIT_OUT);
                         p.hasCards = false;
                     }
-                    if (p.addedCash > 0)
-                        p.increaseCash(p.addedCash);
-                    p.addedCash = 0;
                 });
                 _this.firstCircle = true;
                 _this.refreshPlayers();
@@ -104,17 +108,47 @@ var Game = /** @class */ (function () {
                 _this.startPlayerTimeBank(firstPlayer);
             }
         };
+        // private changePlayersPositions = () => {
+        //     this.players.forEach(p => {
+        //         let positionIndex = this.positionsInGame.indexOf(<string>p.getPosition());
+        //         // console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
+        //         if (positionIndex + 1 < this.positionsInGame.length) {
+        //             p.setPosition(this.positionsInGame[++positionIndex]);
+        //         } else {
+        //             p.setPosition(this.positionsInGame[0]);
+        //         }
+        //     })
+        // };
         this.changePlayersPositions = function () {
-            _this.players.forEach(function (p) {
-                var positionIndex = _this.positionsInGame.indexOf(p.getPosition());
-                // console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
-                if (positionIndex + 1 < _this.positionsInGame.length) {
-                    p.setPosition(_this.positionsInGame[++positionIndex]);
+            var playersInRound = _this.getNonSitOutPLayers();
+            if (playersInRound.length > 1) {
+                var availablePositions = __spreadArrays(_this.availablePositions);
+                var playerBB = playersInRound.find(function (p) { return p.getPosition() === 'bb'; });
+                console.log(availablePositions);
+                console.log('playersInRound.length: ', playersInRound.length);
+                if (playerBB) {
+                    var i = playersInRound.indexOf(playerBB) + 1;
+                    console.log('before i = ', i);
+                    i = i === 1 ? playersInRound.length - 1 : i - 2;
+                    console.log('middle i = ', i);
+                    console.log(playersInRound[i].getName());
+                    //
+                    // while ((playersInRound[i].getStatus() !== GAME_STATUS_IN_GAME || playersInRound[i].getStatus() !== GAME_STATUS_WAIT)) {
+                    //     i--;
+                    // }
+                    console.log('after i = ', i);
+                    for (var start = i; start < playersInRound.length; start++) {
+                        var newPos = availablePositions.shift();
+                        if (newPos)
+                            playersInRound[start].setPosition(newPos);
+                    }
+                    for (var index = 0; index < i; index++) {
+                        var newPos = availablePositions.shift();
+                        if (newPos)
+                            playersInRound[index].setPosition(newPos);
+                    }
                 }
-                else {
-                    p.setPosition(_this.positionsInGame[0]);
-                }
-            });
+            }
         };
         this.getNextPlayer = function (currentPlayer) {
             var _a, _b, _c;
@@ -208,8 +242,8 @@ var Game = /** @class */ (function () {
                                 winnersPositions: [winner.getPosition()]
                             }
                         });
+                    _this.changePlayersPositions();
                     setTimeout(function () {
-                        _this.changePlayersPositions();
                         _this.dealCards();
                     }, 2000);
                 }
@@ -421,8 +455,7 @@ var Game = /** @class */ (function () {
                     type: types_1.MOVE_BANK,
                     data: {
                         players: _this.players,
-                        bank: (_c = _this._bank) === null || _c === void 0 ? void 0 : _c.getCash(),
-                        winnersPositions: []
+                        bank: (_c = _this._bank) === null || _c === void 0 ? void 0 : _c.getCash()
                     }
                 });
             //новая раздача

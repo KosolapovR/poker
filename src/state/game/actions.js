@@ -1,5 +1,4 @@
 import {DEAL_FLOP, DEAL_HAND, DEAL_RIVER, DEAL_TURN, MOVE_BANK, SET_HERO_PLACE, START_TIMER} from "./types";
-import {WS_MOVE_BANK} from "../ws/types";
 
 
 const setHeroPlaceAC = payload => ({

@@ -1,4 +1,4 @@
-import {GAME_STATUS_WAIT} from "./types";
+import {GAME_STATUS_SIT_OUT, GAME_STATUS_WAIT} from "./types";
 
 export class Player {
 
@@ -81,7 +81,7 @@ export class Player {
             return value;
         } else {
             //нехватает денег на установку блайнда
-            this.setStatus(GAME_STATUS_WAIT);
+            this.setStatus(GAME_STATUS_SIT_OUT);
             return 0
         }
     };
@@ -137,10 +137,4 @@ export class Player {
     getTimeBank = () => {
         return this.timeBank;
     };
-    /*
-        countdownStart = () => {
-            this.countDownId = setTimeout(function () {
-                this.setTimebank(0);
-            }, this.getTimeBank());
-        };*/
 }

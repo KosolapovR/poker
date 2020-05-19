@@ -36,7 +36,7 @@ var Player = /** @class */ (function () {
             }
             else {
                 //нехватает денег на установку блайнда
-                _this.setStatus(types_1.GAME_STATUS_WAIT);
+                _this.setStatus(types_1.GAME_STATUS_SIT_OUT);
                 return 0;
             }
         };

@@ -2,8 +2,6 @@ import React from 'react';
 import {makeStyles} from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import Grid from "@material-ui/core/Grid";
-import Box from "@material-ui/core/Box";
-import SpriteMap from "../../../../Sprite";
 import Bet from "../../bet";
 import Card from "../../card";
 import CardBackground from "../../cardBackground";

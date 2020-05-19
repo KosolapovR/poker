@@ -1,6 +1,6 @@
 export default function generateViewBox(data) {
     const cardMapDiamonds = {
-        A: {x: 900, y: 65}, //+217 height
+        A: {x: 900, y: 65},
         K: {x: 900, y: 499},
         Q: {x: 900, y: 282},
         J: {x: 900, y: 716},
@@ -16,7 +16,6 @@ export default function generateViewBox(data) {
     };
 
     let
-        viewBox,
         start_x,
         start_y,
         width,
@@ -52,46 +51,43 @@ export default function generateViewBox(data) {
         }
 
         return `${start_x} ${start_y} ${width} ${height}`;
-    }
-    else if(data.type === 'card shirt'){
+    } else if (data.type === 'card shirt') {
         start_x = 1525;
         start_y = 1370;
         width = 70;
         height = 165;
         return `${start_x} ${start_y} ${width} ${height}`;
-    }else if(data.type === 'chips'){
+    } else if (data.type === 'chips') {
         return getChipsViewBox(data.value);
     }
 }
 
-function  getChipsViewBox(value) {
+function getChipsViewBox(value) {
     const width = 90;
     const height = 80;
     switch (value) {
-        case 1:{
+        case 1: {
             return `423 340 ${width} ${height}`;
         }
-        case 2:{
+        case 2: {
             return `295 340 ${width} ${height}`;
         }
-        case 5:{
+        case 5: {
             return `163 340 ${width} ${height}`;
         }
-        case 10:{
+        case 10: {
             return `33 340 ${width} ${height}`;
         }
-        case 25:{
+        case 25: {
             return `33 414 ${width} ${height}`;
         }
-        case 50:{
+        case 50: {
             return `163 414 ${width} ${height}`;
         }
-        case 100:{
+        case 100: {
             return `295 414 ${width} ${height}`;
         }
-        default: return false;
+        default:
+            return false;
     }
-
-
-
 }

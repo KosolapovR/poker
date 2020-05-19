@@ -78,6 +78,10 @@ class Game {
         return this.players.filter(p => p.getStatus() === GAME_STATUS_IN_GAME)
     };
 
+    public getNonSitOutPLayers = (): Array<Player> => {
+        return this.players.filter(p => p.getStatus() !== GAME_STATUS_SIT_OUT);
+    };
+
     public getPlayersAllIn = (): Array<Player> => {
         return this.players.filter(p => p.getStatus() === GAME_STATUS_ALL_IN)
     };
@@ -166,17 +170,60 @@ class Game {
         }
     };
 
-    private changePlayersPositions = () => {
-        this.players.forEach(p => {
-            let positionIndex = this.positionsInGame.indexOf(p.getPosition());
-            // console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
-            if (positionIndex + 1 < this.positionsInGame.length) {
-                p.setPosition(this.positionsInGame[++positionIndex]);
-            } else {
-                p.setPosition(this.positionsInGame[0]);
+    // private changePlayersPositions = () => {
+    //     this.players.forEach(p => {
+    //         let positionIndex = this.positionsInGame.indexOf(<string>p.getPosition());
+    //         // console.log('this pos = ', p.getPosition(), 'new posIndex', positionIndex + 1, 'pos in game = ', this.positionsInGame);
+    //         if (positionIndex + 1 < this.positionsInGame.length) {
+    //             p.setPosition(this.positionsInGame[++positionIndex]);
+    //         } else {
+    //             p.setPosition(this.positionsInGame[0]);
+    //         }
+    //     })
+    // };
+
+    public changePlayersPositions = () => {
+
+        const playersInRound: Player[] | undefined = this.getNonSitOutPLayers();
+
+        if (playersInRound.length > 1) {
+
+            const availablePositions: string[] = [...this.availablePositions];
+
+            const playerBB: Player | undefined = playersInRound.find(p => p.getPosition() === 'bb');
+            console.log(availablePositions);
+            console.log('playersInRound.length: ', playersInRound.length);
+            if (playerBB) {
+
+                let i: number = playersInRound.indexOf(playerBB) + 1;
+                console.log('before i = ', i);
+                i = i === 1 ? playersInRound.length - 1 : i - 2;
+
+                console.log('middle i = ', i);
+                console.log(playersInRound[i].getName());
+                    //
+                    // while ((playersInRound[i].getStatus() !== GAME_STATUS_IN_GAME || playersInRound[i].getStatus() !== GAME_STATUS_WAIT)) {
+                    //     i--;
+                    // }
+
+                console.log('after i = ', i);
+
+
+                for (let start = i; start < playersInRound.length; start++) {
+                    let newPos = availablePositions.shift();
+                    if (newPos)
+                        playersInRound[start].setPosition(newPos);
+                }
+
+                for (let index = 0; index < i; index++) {
+                    let newPos = availablePositions.shift();
+                    if (newPos)
+                        playersInRound[index].setPosition(newPos)
+                }
             }
-        })
+        }
     };
+
 
     private setCurrentHand(value: CurrentHand) {
         this._currentHand = value;
@@ -292,9 +339,9 @@ class Game {
                         }
                     });
 
-                setTimeout(() => {
-                    this.changePlayersPositions();
+                this.changePlayersPositions();
 
+                setTimeout(() => {
                     this.dealCards();
                 }, 2000);
 

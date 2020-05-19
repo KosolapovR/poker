@@ -25,13 +25,7 @@ test('remove nonexistent Player', () => {
 
     let player = game.getPlayers()[0];
 
-    game.removePlayer(new Player(
-        'Роман1',
-        100,
-        2,
-        'bb',
-        GAME_STATUS_IN_GAME
-    ));
+    game.removePlayer(new Player('Роман1', 100, 2, 'bb', GAME_STATUS_IN_GAME));
 
     let players = game.getPlayers();
 

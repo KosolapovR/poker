@@ -5,8 +5,7 @@ import Slider from "@material-ui/core/Slider";
 import {makeStyles} from "@material-ui/styles";
 import Input from "@material-ui/core/Input";
 import {connect} from "react-redux";
-import {wsConnectAC} from "../../../state/ws";
-import {wsBetAC, wsCallAC, wsCheckAC, wsFoldAC, wsNextHandAC} from "../../../state/ws/actions";
+import {wsBetAC, wsCallAC, wsCheckAC, wsFoldAC} from "../../../state/ws/actions";
 
 const useStyles = makeStyles({
     root: {
