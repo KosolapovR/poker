@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function Player({name, status, dealer, bigBlind, timeBank, smallBlind, fold, isActive, hasCards, cards, position, positions, img, cash, bet, me, showCards}) {
+function Player({name, status, dealer, bigBlind, timeBank, smallBlind, fold, isActive, hasCards, cards, position, positions, img, cash, bet, addedCash, me, showCards}) {
 
     const classes = useStyles(positions);
 
@@ -56,6 +56,8 @@ function Player({name, status, dealer, bigBlind, timeBank, smallBlind, fold, isA
         return (
             <Grid container direction='column-reverse' className={classes.root}>
                 {bet && <Bet position={positions} value={bet}/>}
+                {addedCash && <Bet position={positions} value={addedCash}/>}
+
                 {fold && <FoldedCards position={positions.fold}/>}
                 {dealer && <Button position={positions.button} type='dealer'/>}
                 {bigBlind && <Button position={positions.button} type='bigBlind'/>}
@@ -85,6 +87,8 @@ function Player({name, status, dealer, bigBlind, timeBank, smallBlind, fold, isA
         return (
             <Grid container direction='column-reverse' className={classes.root}>
                 {bet && <Bet value={bet} position={positions}/>}
+                {addedCash && <Bet position={positions} value={addedCash}/>}
+
                 {fold && <FoldedCards position={positions.fold}/>}
                 {dealer && <Button position={positions.button} type='dealer'/>}
                 {bigBlind && <Button position={positions.button} type='bigBlind'/>}

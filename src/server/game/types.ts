@@ -6,6 +6,7 @@ const FLOP: string = 'game/FLOP';
 const TURN: string = 'game/TURN';
 const RIVER: string = 'game/RIVER';
 const SHOWDOWN: string = 'game/SHOWDOWN';
+const MOVE_BANK: string = 'game/MOVE_BANK';
 const GAME_STATUS_IN_GAME = 'game/GAME_STATUS_IN_GAME';
 const GAME_STATUS_ALL_IN = 'game/GAME_STATUS_ALL_IN';
 const GAME_STATUS_WAIT = 'game/GAME_STATUS_WAIT';
@@ -20,6 +21,7 @@ export {
     TURN,
     RIVER,
     SHOWDOWN,
+    MOVE_BANK,
     GAME_STATUS_IN_GAME,
     GAME_STATUS_WAIT,
     GAME_STATUS_ALL_IN,

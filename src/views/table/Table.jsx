@@ -30,12 +30,15 @@ function Table({connected, bank, betValue, flop, turn, river, connect, nextHand,
 
     const [hero, setHero] = useState({});
 
+
+
     if (realPlayers) {
+
         realPlayers = realPlayers.map(p => ({
             ...p,
             order: p.place,
             positions: getCoordsByPlace(p.place),
-            showCards: false,
+            showCards: p.showCards,
             toCall: betValue
         }));
 

@@ -19,6 +19,7 @@ function Players({players}) {
                     cash={p.cash}
                     me = {p.me ? true : null}
                     bet={p.bet || p.call || false}
+                    addedCash={p.addedCash || false}
                     showCards={p.me || p.showCards ? true : null}
                     fold={p.fold}
                     dealer={p.dealer}

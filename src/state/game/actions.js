@@ -1,4 +1,5 @@
-import {DEAL_FLOP, DEAL_HAND, DEAL_RIVER, DEAL_TURN, SET_HERO_PLACE, START_TIMER} from "./types";
+import {DEAL_FLOP, DEAL_HAND, DEAL_RIVER, DEAL_TURN, MOVE_BANK, SET_HERO_PLACE, START_TIMER} from "./types";
+import {WS_MOVE_BANK} from "../ws/types";
 
 
 const setHeroPlaceAC = payload => ({
@@ -26,6 +27,11 @@ const dealRiverAC = payload => ({
     payload
 });
 
+const moveBankAC = (payload) => ({
+    type: MOVE_BANK,
+    payload
+});
+
 const startTimerAC = payload => ({
     type: START_TIMER,
     payload
@@ -37,5 +43,6 @@ export {
     startTimerAC,
     dealFlopAC,
     dealTurnAC,
-    dealRiverAC
+    dealRiverAC,
+    moveBankAC,
 }

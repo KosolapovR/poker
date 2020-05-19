@@ -97,6 +97,7 @@ var Player = /** @class */ (function () {
         this.call = 0;
         this.hasCards = true;
         this.showCards = false;
+        this.addedCash = 0;
     }
     return Player;
 }());

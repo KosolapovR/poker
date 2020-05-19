@@ -32,10 +32,14 @@ class Bank {
             part = (pot - extra) / playersCount;
         if (playersCount === 3)
             console.log('pot = ', pot, ' extra = ', extra, ' part = ', part);
-        players.forEach(p => p.increaseCash(part));
+        players.forEach(p => {
+            // p.increaseCash(part);
+            p.addedCash = part;
+        });
 
         for (let i = 0; extra > 0; i++, extra--) {
-            players[i].increaseCash(1);
+            // players[i].increaseCash(1);
+            players[i].addedCash += 1;
         }
 
         this.cash = 0;

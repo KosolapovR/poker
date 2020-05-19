@@ -1,4 +1,12 @@
-import {WS_CONNECTED, WS_HERO_BET, WS_HERO_CALL, WS_HERO_CHECK, WS_HERO_FOLD, WS_NEXT_HAND} from "./types";
+import {
+    WS_CONNECTED,
+    WS_HERO_BET,
+    WS_HERO_CALL,
+    WS_HERO_CHECK,
+    WS_HERO_FOLD,
+    WS_MOVE_BANK,
+    WS_NEXT_HAND
+} from "./types";
 
 const wsConnectAC = payload => ({
     type: WS_CONNECTED,

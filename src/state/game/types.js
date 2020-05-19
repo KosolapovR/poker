@@ -4,6 +4,7 @@ const START_TIMER = 'game/START_TIMER';
 const DEAL_FLOP = 'game/DEAL_FLOP';
 const DEAL_TURN = 'game/DEAL_TURN';
 const DEAL_RIVER = 'game/DEAL_RIVER';
+const MOVE_BANK = 'game/MOVE_BANK';
 
 export {
     DEAL_HAND,
@@ -11,5 +12,6 @@ export {
     START_TIMER,
     DEAL_FLOP,
     DEAL_TURN,
-    DEAL_RIVER
+    DEAL_RIVER,
+    MOVE_BANK
 }

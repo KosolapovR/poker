@@ -79,7 +79,11 @@ var Game = /** @class */ (function () {
                     }
                     else {
                         p.setStatus(types_1.GAME_STATUS_SIT_OUT);
+                        p.hasCards = false;
                     }
+                    if (p.addedCash > 0)
+                        p.increaseCash(p.addedCash);
+                    p.addedCash = 0;
                 });
                 _this.firstCircle = true;
                 _this.refreshPlayers();
@@ -125,7 +129,6 @@ var Game = /** @class */ (function () {
                         console.log('<<<<<< Все пошли AI');
                         return undefined;
                     }
-                    ;
                     nextPlayer = _this.players.find(function (p) {
                         return p.getPosition() === _this.positionsInGame[_this.positionsInGame.length - 1];
                     });
@@ -183,16 +186,28 @@ var Game = /** @class */ (function () {
             }
         };
         this.stopPlayerTimeBank = function () {
-            var _a, _b;
+            var _a, _b, _c;
             if (_this.timerId) {
                 //остановка таймера
                 clearTimeout(_this.timerId);
                 _this.players.forEach(function (p) { return p.isActive = false; });
                 //обработка выигрыша без вскрытия
                 if (_this.getPlayersInRound().length + _this.getPlayersAllIn().length < 2) {
-                    _this.playerWinWithoutShowDown(_this.getPlayersInRound()[0]);
-                    _this.changePlayersPositions();
-                    _this.dealCards();
+                    var winner_1 = _this.getPlayersInRound()[0];
+                    if (_this.observableCallback)
+                        _this.observableCallback({
+                            type: types_1.MOVE_BANK,
+                            data: {
+                                players: _this.players,
+                                bank: (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash(),
+                                winnersPositions: [winner_1.getPosition()]
+                            }
+                        });
+                    setTimeout(function () {
+                        _this.playerWinWithoutShowDown(winner_1);
+                        _this.changePlayersPositions();
+                        _this.dealCards();
+                    }, 2000);
                 }
                 else {
                     var nextPlayer = _this.getNextPlayer(_this.activePlayer);
@@ -205,8 +220,8 @@ var Game = /** @class */ (function () {
                     //         if (nextPlayer?.getPosition() === this.activePlayer?.getPosition()) break;
                     //     }
                     console.log("@@@ nextPlayer?.getPosition() = ", nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition());
-                    console.log("@@@ this.ActivePlayer?.getPosition() = ", (_a = _this.activePlayer) === null || _a === void 0 ? void 0 : _a.getPosition());
-                    if ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition()) === ((_b = _this.activePlayer) === null || _b === void 0 ? void 0 : _b.getPosition())) {
+                    console.log("@@@ this.ActivePlayer?.getPosition() = ", (_b = _this.activePlayer) === null || _b === void 0 ? void 0 : _b.getPosition());
+                    if ((nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition()) === ((_c = _this.activePlayer) === null || _c === void 0 ? void 0 : _c.getPosition())) {
                         console.log('!!!!!!! 286 pos: ', nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.getPosition());
                         nextPlayer = undefined;
                     }
@@ -390,11 +405,22 @@ var Game = /** @class */ (function () {
             }
         };
         this.showdown = function () {
-            var _a, _b;
+            var _a, _b, _c;
             console.log('Вскрытие, размера пота = ', (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash());
-            var winners = (_b = _this._currentHand) === null || _b === void 0 ? void 0 : _b.getWinners(__spreadArrays(_this.getPlayersInRound(), _this.getPlayersAllIn()));
+            var currentPlayersInRound = __spreadArrays(_this.getPlayersInRound(), _this.getPlayersAllIn());
+            var winners = (_b = _this._currentHand) === null || _b === void 0 ? void 0 : _b.getWinners(currentPlayersInRound);
+            currentPlayersInRound.forEach(function (w) { return w.showCards = true; });
             if (winners)
                 _this.playerWinOnShowDown(winners);
+            if (_this.observableCallback)
+                _this.observableCallback({
+                    type: types_1.MOVE_BANK,
+                    data: {
+                        players: _this.players,
+                        bank: (_c = _this._bank) === null || _c === void 0 ? void 0 : _c.getCash(),
+                        winnersPositions: []
+                    }
+                });
             //новая раздача
             setTimeout(function () {
                 _this.nextRound();

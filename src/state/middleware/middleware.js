@@ -1,7 +1,7 @@
 import {WS_CONNECTED, WS_HERO_BET, WS_HERO_CALL, WS_HERO_CHECK, WS_HERO_FOLD, WS_NEXT_HAND} from "../ws/types";
 import openSocket from "socket.io-client";
 import {dealHandAC} from "../game";
-import {dealFlopAC, dealRiverAC, dealTurnAC, setHeroPlaceAC, startTimerAC} from "../game/actions";
+import {dealFlopAC, dealRiverAC, dealTurnAC, moveBankAC, setHeroPlaceAC, startTimerAC} from "../game/actions";
 
 const socketMiddleware = (store) => {
 
@@ -53,6 +53,10 @@ const socketMiddleware = (store) => {
 
                 socket.on('dealRiver', data => {
                     store.dispatch(dealRiverAC(data));
+                });
+
+                socket.on('moveBank', data => {
+                    store.dispatch(moveBankAC(data));
                 });
 
                 break;

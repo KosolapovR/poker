@@ -9,7 +9,8 @@ import {
     RIVER,
     SHOWDOWN,
     START_TIMER,
-    TURN
+    TURN,
+    MOVE_BANK
 } from "./types";
 import Bank from "./Bank";
 
@@ -128,8 +129,13 @@ class Game {
                         p.hasCards = true;
                         p.showCards = false;
                     } else {
-                        p.setStatus(GAME_STATUS_SIT_OUT)
+                        p.setStatus(GAME_STATUS_SIT_OUT);
+                        p.hasCards = false;
                     }
+
+                    if (p.addedCash > 0) p.increaseCash(p.addedCash);
+
+                    p.addedCash = 0;
                 }
             );
 
@@ -186,7 +192,7 @@ class Game {
                 if (this.firstCircle) this.firstCircle = false;
 
                 //все пошли All-in либо сфолдили
-                if (this.getPlayersInRound().length < 1){
+                if (this.getPlayersInRound().length < 1) {
                     console.log('<<<<<< Все пошли AI');
                     return undefined;
                 }
@@ -267,11 +273,25 @@ class Game {
             //обработка выигрыша без вскрытия
             if (this.getPlayersInRound().length + this.getPlayersAllIn().length < 2) {
 
-                this.playerWinWithoutShowDown(this.getPlayersInRound()[0]);
+                const winner = this.getPlayersInRound()[0];
 
-                this.changePlayersPositions();
+                if (this.observableCallback)
+                    this.observableCallback({
+                        type: MOVE_BANK,
+                        data: {
+                            players: this.players,
+                            bank: this._bank?.getCash(),
+                            winnersPositions: [winner.getPosition()]
+                        }
+                    });
 
-                this.dealCards();
+                setTimeout(() => {
+                    this.playerWinWithoutShowDown(winner);
+
+                    this.changePlayersPositions();
+
+                    this.dealCards();
+                }, 2000);
 
             } else {
                 let nextPlayer: Player | undefined = this.getNextPlayer(this.activePlayer);
@@ -286,7 +306,7 @@ class Game {
 
                 console.log("@@@ nextPlayer?.getPosition() = ", nextPlayer?.getPosition());
                 console.log("@@@ this.ActivePlayer?.getPosition() = ", this.activePlayer?.getPosition());
-                if (nextPlayer?.getPosition() === this.activePlayer?.getPosition()){
+                if (nextPlayer?.getPosition() === this.activePlayer?.getPosition()) {
 
                     console.log('!!!!!!! 286 pos: ', nextPlayer?.getPosition());
                     nextPlayer = undefined;
@@ -521,13 +541,27 @@ class Game {
     private showdown = () => {
         console.log('Вскрытие, размера пота = ', this._bank?.getCash());
 
-        const winners = this._currentHand?.getWinners([
+        const currentPlayersInRound = [
             ...this.getPlayersInRound(),
             ...this.getPlayersAllIn()
-        ]);
+        ];
+
+        const winners = this._currentHand?.getWinners(currentPlayersInRound);
+
+        currentPlayersInRound.forEach(w => w.showCards = true);
 
         if (winners)
             this.playerWinOnShowDown(winners);
+
+        if (this.observableCallback)
+            this.observableCallback({
+                type: MOVE_BANK,
+                data: {
+                    players: this.players,
+                    bank: this._bank?.getCash(),
+                    winnersPositions: []
+                }
+            });
 
         //новая раздача
         setTimeout(() => {

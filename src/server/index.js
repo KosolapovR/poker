@@ -87,6 +87,11 @@ function gameEventHandler(event) {
             io.sockets.emit('dealRiver', event.data);
             break;
         }
+        case types.MOVE_BANK: {
+            console.log('Перемещение банка');
+            io.sockets.emit('moveBank', event.data);
+            break;
+        }
         default: {
             console.log('Поступил необрабатываемый event: ', event.type);
             break;
