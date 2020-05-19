@@ -15,18 +15,17 @@ var Bank = /** @class */ (function () {
         this.setBetValue = function (value) {
             _this.betValue = value;
         };
-        this.shareBetweenPlayers = function (players) {
-            var playersCount = players.length, pot = _this.getCash(), extra = pot % playersCount, part = (pot - extra) / playersCount;
-            if (playersCount === 3)
-                console.log('pot = ', pot, ' extra = ', extra, ' part = ', part);
-            players.forEach(function (p) {
+        this.shareBetweenPlayers = function (winners, allPlayers) {
+            var playersCount = winners.length, pot = _this.getCash() + allPlayers.reduce(function (acc, p) { return acc + Math.max(p.bet, p.call); }, 0), extra = pot % playersCount, part = (pot - extra) / playersCount;
+            winners.forEach(function (p) {
                 // p.increaseCash(part);
                 p.addedCash = part;
             });
-            for (var i = 0; extra > 0; i++, extra--) {
-                // players[i].increaseCash(1);
-                players[i].addedCash += 1;
-            }
+            if (extra)
+                for (var i = 0; extra > 0; i++, extra--) {
+                    // players[i].increaseCash(1);
+                    winners[i].addedCash += 1;
+                }
             _this.cash = 0;
         };
         this.cash = 0;

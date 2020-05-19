@@ -25,22 +25,22 @@ class Bank {
         this.betValue = value;
     };
 
-    public shareBetweenPlayers = (players: Player[]) => {
-        let playersCount = players.length,
-            pot = this.getCash(),
+    public shareBetweenPlayers = (winners: Player[], allPlayers: Player[]) => {
+        let playersCount = winners.length,
+            pot = this.getCash() + allPlayers.reduce((acc, p) => acc + Math.max(p.bet, p.call) , 0),
             extra = pot % playersCount,
             part = (pot - extra) / playersCount;
-        if (playersCount === 3)
-            console.log('pot = ', pot, ' extra = ', extra, ' part = ', part);
-        players.forEach(p => {
+
+        winners.forEach(p => {
             // p.increaseCash(part);
             p.addedCash = part;
         });
 
-        for (let i = 0; extra > 0; i++, extra--) {
-            // players[i].increaseCash(1);
-            players[i].addedCash += 1;
-        }
+        if (extra)
+            for (let i = 0; extra > 0; i++, extra--) {
+                // players[i].increaseCash(1);
+                winners[i].addedCash += 1;
+            }
 
         this.cash = 0;
     }

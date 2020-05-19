@@ -13,7 +13,7 @@ test('share 8-pot between 1 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
     expect(bb.getCash()).toEqual(200);
     expect(bb.addedCash).toEqual(8);
@@ -32,12 +32,38 @@ test('share 8-pot between 2 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
     expect(bb.getCash()).toEqual(200);
     expect(bb.addedCash).toEqual(4);
     expect(sb.getCash()).toEqual(200);
     expect(sb.addedCash).toEqual(4);
+
+});
+test('share 8-pot between 2 Player | b2 | c2 |', () => {
+    const game = new Game();
+
+    let bb = game.addPlayer({user: {name: "Роман1"}});
+    let sb = game.addPlayer({user: {name: "Роман2"}});
+
+    let players = game.getPlayers();
+
+    game.setBank();
+    game.getBank().addCash(8);
+
+    expect(players.length).toEqual(2);
+
+    sb.bet = 2;
+    bb.call = 2;
+
+    game
+        .getBank()
+        .shareBetweenPlayers(players, players);
+
+    expect(bb.getCash()).toEqual(200);
+    expect(bb.addedCash).toEqual(6);
+    expect(sb.getCash()).toEqual(200);
+    expect(sb.addedCash).toEqual(6);
 
 });
 test('share 9-pot between 2 Player', () => {
@@ -54,7 +80,7 @@ test('share 9-pot between 2 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
     expect(bb.getCash()).toEqual(200);
     expect(bb.addedCash).toEqual(5);
@@ -77,7 +103,7 @@ test('share 9-pot between 3 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
     expect(bb.getCash()).toEqual(200);
     expect(bb.addedCash).toEqual(3);
@@ -101,7 +127,7 @@ test('share 8-pot between 3 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
 
     expect(bb.getCash()).toEqual(200);
@@ -126,7 +152,7 @@ test('share 7-pot between 3 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
     expect(bb.getCash()).toEqual(200);
     expect(bb.addedCash).toEqual(3);
@@ -152,7 +178,7 @@ test('share 7-pot between 4 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
     expect(bb.getCash()).toEqual(200);
     expect(bb.addedCash).toEqual(2);
@@ -179,7 +205,7 @@ test('share 8-pot between 4 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
 
     expect(bb.getCash()).toEqual(200);
@@ -207,7 +233,7 @@ test('share 9-pot between 4 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
 
     expect(bb.getCash()).toEqual(200);
@@ -235,7 +261,7 @@ test('share 10-pot between 4 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
 
     expect(bb.getCash()).toEqual(200);
@@ -263,7 +289,7 @@ test('share 11-pot between 4 Player', () => {
 
     game
         .getBank()
-        .shareBetweenPlayers(players);
+        .shareBetweenPlayers(players, players);
 
     expect(bb.getCash()).toEqual(200);
     expect(bb.addedCash).toEqual(3);

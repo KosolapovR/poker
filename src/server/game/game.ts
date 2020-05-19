@@ -65,7 +65,6 @@ class Game {
         return <Player>player;
     };
 
-
     public setActivePlayer = (player: Player) => {
         player.isActive = true;
         this.activePlayer = player;
@@ -124,6 +123,11 @@ class Game {
         if (this.players && this.players.length > 1 && this.observableCallback) {
 
             this.players.forEach(p => {
+
+                    //увеличиваем банкрол игрока на вечиличу его выигрыша
+                    if (p.addedCash > 0) p.increaseCash(p.addedCash);
+                    p.addedCash = 0;
+
                     if (p.getCash() > 0) {
                         p.setStatus(GAME_STATUS_IN_GAME);
                         p.hasCards = true;
@@ -132,10 +136,6 @@ class Game {
                         p.setStatus(GAME_STATUS_SIT_OUT);
                         p.hasCards = false;
                     }
-
-                    if (p.addedCash > 0) p.increaseCash(p.addedCash);
-
-                    p.addedCash = 0;
                 }
             );
 
@@ -275,6 +275,13 @@ class Game {
 
                 const winner = this.getPlayersInRound()[0];
 
+                this.playerWinWithoutShowDown(winner);
+
+                this.players.forEach(p => {
+                    p.call = 0;
+                    p.bet = 0;
+                });
+
                 if (this.observableCallback)
                     this.observableCallback({
                         type: MOVE_BANK,
@@ -286,8 +293,6 @@ class Game {
                     });
 
                 setTimeout(() => {
-                    this.playerWinWithoutShowDown(winner);
-
                     this.changePlayersPositions();
 
                     this.dealCards();
@@ -559,7 +564,6 @@ class Game {
                 data: {
                     players: this.players,
                     bank: this._bank?.getCash(),
-                    winnersPositions: []
                 }
             });
 
@@ -569,23 +573,12 @@ class Game {
         }, 6000);
     };
 
-    private playerWinWithoutShowDown = (winner: Player | undefined) => {
-
-        let sum = 0;
-
-        this.players.forEach(p =>
-            p.bet ? sum += p.bet : p.call ? sum += p.call : sum
-        );
-
-        this._bank?.addCash(sum);
-
-        if (this._bank && winner) {
-            winner.increaseCash(this._bank.getCash());
-        }
+    private playerWinWithoutShowDown = (winner: Player) => {
+        this._bank?.shareBetweenPlayers([winner], this.getPlayers());
     };
 
     private playerWinOnShowDown = (winners: Player[]) => {
-        this._bank?.shareBetweenPlayers(winners);
+        this._bank?.shareBetweenPlayers(winners, this.getPlayers());
     };
 
     private updateBank = () => {

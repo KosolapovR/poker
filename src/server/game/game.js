@@ -193,18 +193,22 @@ var Game = /** @class */ (function () {
                 _this.players.forEach(function (p) { return p.isActive = false; });
                 //обработка выигрыша без вскрытия
                 if (_this.getPlayersInRound().length + _this.getPlayersAllIn().length < 2) {
-                    var winner_1 = _this.getPlayersInRound()[0];
+                    var winner = _this.getPlayersInRound()[0];
+                    _this.playerWinWithoutShowDown(winner);
+                    _this.players.forEach(function (p) {
+                        p.call = 0;
+                        p.bet = 0;
+                    });
                     if (_this.observableCallback)
                         _this.observableCallback({
                             type: types_1.MOVE_BANK,
                             data: {
                                 players: _this.players,
                                 bank: (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.getCash(),
-                                winnersPositions: [winner_1.getPosition()]
+                                winnersPositions: [winner.getPosition()]
                             }
                         });
                     setTimeout(function () {
-                        _this.playerWinWithoutShowDown(winner_1);
                         _this.changePlayersPositions();
                         _this.dealCards();
                     }, 2000);
@@ -428,18 +432,11 @@ var Game = /** @class */ (function () {
         };
         this.playerWinWithoutShowDown = function (winner) {
             var _a;
-            var sum = 0;
-            _this.players.forEach(function (p) {
-                return p.bet ? sum += p.bet : p.call ? sum += p.call : sum;
-            });
-            (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.addCash(sum);
-            if (_this._bank && winner) {
-                winner.increaseCash(_this._bank.getCash());
-            }
+            (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.shareBetweenPlayers([winner], _this.getPlayers());
         };
         this.playerWinOnShowDown = function (winners) {
             var _a;
-            (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.shareBetweenPlayers(winners);
+            (_a = _this._bank) === null || _a === void 0 ? void 0 : _a.shareBetweenPlayers(winners, _this.getPlayers());
         };
         this.updateBank = function () {
             var _a, _b;
